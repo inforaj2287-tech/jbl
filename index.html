@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raahi Cabs — Airport, Outstation &amp; Local Taxi Service in Bengaluru</title>
+<meta name="description" content="Book reliable airport pickup &amp; drop, outstation cabs and local taxis in Bengaluru. Transparent per-km pricing, verified drivers, 24x7 support.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===================== HEADER ===================== -->
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="#top">
+      <span class="mark">R</span>
+      <span class="word">RAAHI<small>CABS · BENGALURU</small></span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#top">Home</a>
+      <a href="#airport">Airport</a>
+      <a href="#outstation">Outstation</a>
+      <a href="#fleet">Fleet</a>
+      <a href="#offers">Offers</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="header-cta">
+      <div class="phone-pill"><span class="dot"></span> 080-4684-4684</div>
+      <a class="btn btn-yellow" href="#book">Book a Cab</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">☰</button>
+  </div>
+</header>
+
+<!-- ===================== HERO / BOOKING METER ===================== -->
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow" style="color:var(--yellow)">Since 2011 · Bengaluru</div>
+      <h1>Every ride, <em>metered</em> fair. Nothing hidden.</h1>
+      <p class="lede">Airport transfers, outstation trips and local runs across Bengaluru — priced by the kilometre, tracked door to door, driven by people who know the city.</p>
+      <div style="display:flex; gap:14px; flex-wrap:wrap;">
+        <a href="#book" class="btn btn-yellow">Get a Fare Estimate</a>
+        <a href="tel:08046844684" class="btn btn-ghost on-dark">Call Dispatch →</a>
+      </div>
+      <div class="hero-stats">
+        <div><strong>13+</strong><span>Years on the road</span></div>
+        <div><strong>240k+</strong><span>Trips completed</span></div>
+        <div><strong>24×7</strong><span>Dispatch &amp; support</span></div>
+      </div>
+    </div>
+
+    <div class="meter-card" id="book">
+      <div class="meter-tabs" id="meterTabs">
+        <button class="active" data-tab="local">Local</button>
+        <button data-tab="outstation">Outstation</button>
+        <button data-tab="airport">Airport</button>
+      </div>
+      <form class="meter-body" id="bookingForm">
+        <input type="hidden" name="trip_type" id="tripType" value="local">
+
+        <div class="field">
+          <label for="pickup">Pickup location</label>
+          <input type="text" id="pickup" name="pickup" placeholder="e.g. Koramangala, BTM Layout" required>
+        </div>
+        <div class="field">
+          <label for="drop">Drop location</label>
+          <input type="text" id="drop" name="drop" placeholder="e.g. Kempegowda International Airport" required>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="date">Pickup date</label>
+            <input type="date" id="date" name="date" required>
+          </div>
+          <div class="field">
+            <label for="time">Pickup time</label>
+            <input type="time" id="time" name="time" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="cabType">Cab type</label>
+          <select id="cabType" name="cab_type">
+            <option value="hatchback">Hatchback · ₹9.50/km</option>
+            <option value="sedan">Sedan · ₹10.50/km</option>
+            <option value="suv">SUV · ₹16.00/km</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="km">Estimated distance (km)</label>
+          <input type="number" id="km" name="km" min="1" placeholder="e.g. 32" value="20">
+        </div>
+
+        <div class="fare-readout">
+          <span class="label">Meter estimate</span>
+          <span class="digits" id="fareDigits">0000</span>
+        </div>
+
+        <div class="field-row">
+          <div class="field"><label for="name">Your name</label><input type="text" id="name" name="name" required></div>
+          <div class="field"><label for="phone">Phone</label><input type="tel" id="phone" name="phone" pattern="[0-9]{10}" placeholder="10-digit number" required></div>
+        </div>
+
+        <button type="submit" class="btn btn-yellow btn-block">Confirm Booking</button>
+        <div class="form-msg" id="bookingMsg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="road-divider">
+    <svg preserveAspectRatio="none" viewBox="0 0 1200 34"><line x1="0" y1="17" x2="1200" y2="17" stroke="#f5f2ea" stroke-width="4" stroke-dasharray="26 18" opacity="0.9"/></svg>
+  </div>
+</section>
+
+<!-- ===================== USP STRIP ===================== -->
+<section class="usp-strip">
+  <div class="wrap usp-grid">
+    <div class="usp-item">
+      <div class="num">01</div>
+      <h4>Verified drivers</h4>
+      <p>Every driver passes a police background check and route-knowledge screening before they get behind the wheel.</p>
+    </div>
+    <div class="usp-item">
+      <div class="num">02</div>
+      <h4>Pay for the road, not the guess</h4>
+      <p>Fares are calculated on actual kilometres travelled — no surge pricing, no last-minute add-ons.</p>
+    </div>
+    <div class="usp-item">
+      <div class="num">03</div>
+      <h4>Tracked, every kilometre</h4>
+      <p>Live location sharing and a 24×7 dispatch line, so someone always knows exactly where your ride is.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== AIRPORT ROUTES ===================== -->
+<section class="section" id="airport">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Kempegowda International Airport</div>
+        <h2>Fixed-fare airport transfers</h2>
+      </div>
+      <p class="lede">Flat pricing to and from the airport, with 45 minutes of free wait time built in for delayed flights.</p>
+    </div>
+    <div class="route-grid">
+      <div class="route-card">
+        <div class="thumb"><span class="tag">FROM ₹574</span></div>
+        <div class="body">
+          <h3>Airport Pickup</h3>
+          <p>We track your flight and adjust pickup time automatically — no charge for delays inside the free-wait window.</p>
+          <div class="price">₹574 flat · up to 25km</div>
+          <a class="btn btn-ghost" href="#book">Get a Cab →</a>
+        </div>
+      </div>
+      <div class="route-card">
+        <div class="thumb"><span class="tag">FROM ₹674</span></div>
+        <div class="body">
+          <h3>Airport Drop</h3>
+          <p>Door-to-terminal drop with a buffer built into every quote, so you're never cutting boarding time close.</p>
+          <div class="price">₹674 flat · up to 25km</div>
+          <a class="btn btn-ghost" href="#book">Get a Cab →</a>
+        </div>
+      </div>
+      <div class="route-card">
+        <div class="thumb"><span class="tag">FROM ₹1295</span></div>
+        <div class="body">
+          <h3>Airport Round Trip</h3>
+          <p>Book pickup and drop together and lock in a lower combined rate than two one-way trips.</p>
+          <div class="price">₹1295 flat · round trip</div>
+          <a class="btn btn-ghost" href="#book">Get a Cab →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="road-divider" style="background:var(--paper-2)">
+  <svg preserveAspectRatio="none" viewBox="0 0 1200 34"><line x1="0" y1="17" x2="1200" y2="17" stroke="#12161d" stroke-width="4" stroke-dasharray="26 18" opacity="0.15"/></svg>
+</div>
+
+<!-- ===================== HOW WE SERVE ===================== -->
+<section class="section section-tight" style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="section-head">
+      <div><div class="eyebrow">Four steps, in order</div><h2>How a Raahi booking runs</h2></div>
+    </div>
+    <div class="serve-list">
+      <div class="serve-item"><h4>Quote the fare</h4><p>Enter pickup, drop and cab type — the meter above shows an estimate before you confirm anything.</p></div>
+      <div class="serve-item"><h4>Confirm &amp; get a driver</h4><p>A verified driver is assigned and their number is shared with you within minutes.</p></div>
+      <div class="serve-item"><h4>Track the ride</h4><p>Share your live trip link with family — dispatch can see the route in real time too.</p></div>
+      <div class="serve-item"><h4>Pay what the meter shows</h4><p>Settle by cash, UPI or card for exactly the distance travelled. No renegotiating at the door.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FLEET ===================== -->
+<section class="section" id="fleet">
+  <div class="wrap">
+    <div class="section-head">
+      <div><div class="eyebrow">The fleet</div><h2>Pick a car for the trip</h2></div>
+      <p class="lede">Three classes, one transparent per-kilometre rate on each.</p>
+    </div>
+    <div class="fleet-grid">
+      <div class="plate-card">
+        <span class="silhouette">01</span>
+        <h3>Hatchback</h3>
+        <p>Nimble city car for solo travellers or a couple, best suited to short local hops.</p>
+        <div class="rate"><span class="amt">₹9.50</span><span class="per">per km</span></div>
+      </div>
+      <div class="plate-card">
+        <span class="silhouette">02</span>
+        <h3>Sedan</h3>
+        <p>Room for four with luggage — the standard pick for airport runs and family outings.</p>
+        <div class="rate"><span class="amt">₹10.50</span><span class="per">per km</span></div>
+      </div>
+      <div class="plate-card">
+        <span class="silhouette">03</span>
+        <h3>SUV</h3>
+        <p>Seats up to seven with generous boot space — built for group outstation trips.</p>
+        <div class="rate"><span class="amt">₹16.00</span><span class="per">per km</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== OFFERS / PACKAGES ===================== -->
+<section class="section section-tight" style="background:var(--paper-2)" id="offers">
+  <div class="wrap">
+    <div class="section-head">
+      <div><div class="eyebrow">Plans &amp; packages</div><h2>Ways to save on the road</h2></div>
+    </div>
+    <div class="offer-grid">
+      <div class="offer-card">
+        <div class="img" style="background-image:linear-gradient(135deg,#1b212b,#12161d)"><span class="ribbon">SAVE ₹3,600</span></div>
+        <div class="body">
+          <h3>Outstation, one permit charge</h3>
+          <p>Book a one-way outstation trip and we absorb the return-permit cost that other operators pass on to you.</p>
+          <a class="btn btn-ghost" href="#outstation">See routes →</a>
+        </div>
+      </div>
+      <div class="offer-card">
+        <div class="img" style="background-image:linear-gradient(135deg,#1b212b,#12161d)"><span class="ribbon">EARLY BIRD</span></div>
+        <div class="body">
+          <h3>Airport rides, 4–7:45 AM</h3>
+          <p>One-way trips from the airport within 35km start from ₹475 during the early-morning window.</p>
+          <a class="btn btn-ghost" href="#airport">See fares →</a>
+        </div>
+      </div>
+      <div class="offer-card">
+        <div class="img" style="background-image:linear-gradient(135deg,#1b212b,#12161d)"><span class="ribbon">WEEKENDER</span></div>
+        <div class="body">
+          <h3>Holiday packages</h3>
+          <p>Round-trip outstation packages to hill stations and coastal towns near Bengaluru, priced up front.</p>
+          <a class="btn btn-ghost" href="#outstation">Plan a trip →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ABOUT + ADVANTAGE ===================== -->
+<section class="section" id="outstation">
+  <div class="wrap about-grid">
+    <div class="about-art">
+      <div class="meterface">
+        <span class="big" id="aboutMeter">240,318</span>
+        <span class="small">Trips on the meter since 2011</span>
+      </div>
+    </div>
+    <div>
+      <div class="eyebrow">Who's driving</div>
+      <h2 style="font-size:36px; text-transform:uppercase;">Bengaluru's taxi, run like a taxi should be</h2>
+      <p class="lede" style="max-width:none; margin-top:16px;">Raahi Cabs has been on Bengaluru's roads since 2011 — hatchbacks, sedans and SUVs, driven by locals who know the shortcuts and the checkposts. We built the business around one idea: the fare on the meter is the fare you pay.</p>
+      <div class="adv-grid">
+        <div class="adv-chip"><span class="tick">✓</span> Flexi pricing</div>
+        <div class="adv-chip"><span class="tick">✓</span> Transparent billing</div>
+        <div class="adv-chip"><span class="tick">✓</span> No hidden charges</div>
+        <div class="adv-chip"><span class="tick">✓</span> 24×7 dispatch</div>
+        <div class="adv-chip"><span class="tick">✓</span> Live trip tracking</div>
+        <div class="adv-chip"><span class="tick">✓</span> Free cancellation</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TESTIMONIALS ===================== -->
+<section class="section section-tight" style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="section-head"><div><div class="eyebrow">Riders say</div><h2>From the back seat</h2></div></div>
+    <div class="testi-track" id="testiTrack">
+      <div class="testi-card"><div class="stars">★★★★★</div><p>Driver was on time and knew the route into the airport well even with the diversion near Hebbal. Smooth trip.</p><div class="who"><div class="avatar">S</div><div><strong>Santosh Kumar</strong><span>Airport Drop</span></div></div></div>
+      <div class="testi-card"><div class="stars">★★★★★</div><p>Booked a Bengaluru to Kadapa outstation trip — price matched exactly what was quoted, no surprises at drop-off.</p><div class="who"><div class="avatar">S</div><div><strong>Satya Narayana</strong><span>Outstation</span></div></div></div>
+      <div class="testi-card"><div class="stars">★★★★★</div><p>Used them close to thirty times over the years for local runs. Cars always arrive within the promised window.</p><div class="who"><div class="avatar">P</div><div><strong>Pranay Porwal</strong><span>Local Taxi</span></div></div></div>
+      <div class="testi-card"><div class="stars">★★★★★</div><p>Reasonable pricing and the driver was well mannered — the support team followed up after the ride too.</p><div class="who"><div class="avatar">M</div><div><strong>Meghana Gowda</strong><span>Local Taxi</span></div></div></div>
+    </div>
+    <div class="testi-nav">
+      <button id="testiPrev" aria-label="Previous">←</button>
+      <button id="testiNext" aria-label="Next">→</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FAQ ===================== -->
+<section class="section" id="faq">
+  <div class="wrap">
+    <div class="section-head center" style="display:block;">
+      <div class="eyebrow" style="justify-content:center;">Questions</div>
+      <h2>Frequently asked</h2>
+    </div>
+    <div class="faq-list" id="faqList">
+      <div class="faq-item open">
+        <button class="faq-q">How do I book a Raahi cab?<span class="plus">+</span></button>
+        <div class="faq-a"><p>Fill in the pickup, drop, date and cab type in the booking widget above and hit Confirm Booking. A driver is assigned and their details are sent to your phone within minutes.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Is the per-km rate the final price?<span class="plus">+</span></button>
+        <div class="faq-a"><p>Yes for local and outstation trips billed by distance. Airport pickup, drop and round-trip routes are flat-fare and shown up front on the Airport section.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Can I bring a pet along?<span class="plus">+</span></button>
+        <div class="faq-a"><p>Small pets are welcome — just mention it while booking so we can assign a car and driver comfortable with that.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">What if I need extra luggage space?<span class="plus">+</span></button>
+        <div class="faq-a"><p>Let dispatch know ahead of time and we'll assign an SUV or a sedan with a roof carrier for the trip.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">What identification do I need to carry?<span class="plus">+</span></button>
+        <div class="faq-a"><p>Any valid government-issued photo ID is accepted for outstation and airport trips.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CONTACT ===================== -->
+<section class="section section-tight" style="background:var(--paper-2)" id="contact">
+  <div class="wrap contact-grid">
+    <div>
+      <div class="eyebrow">Get in touch</div>
+      <h2 style="font-size:32px; text-transform:uppercase; margin-bottom:20px;">Send a message</h2>
+      <form class="contact-form" id="contactForm">
+        <div class="field-row">
+          <div class="field"><label for="cName">Name</label><input type="text" id="cName" name="name" required></div>
+          <div class="field"><label for="cPhone">Phone</label><input type="tel" id="cPhone" name="phone" pattern="[0-9]{10}" required></div>
+        </div>
+        <div class="field"><label for="cEmail">Email</label><input type="email" id="cEmail" name="email" required></div>
+        <div class="field"><label for="cMsg">Message</label><input type="text" id="cMsg" name="message" placeholder="Tell us about your trip" required></div>
+        <button type="submit" class="btn btn-yellow btn-block">Send Message</button>
+        <div class="form-msg" id="contactMsg"></div>
+      </form>
+    </div>
+    <div class="contact-info">
+      <h3>Dispatch desk</h3>
+      <div class="row"><span class="ic">☎</span><div><span>Phone</span>080-4684-4684</div></div>
+      <div class="row"><span class="ic">✉</span><div><span>Email</span>contact@raahicabs.example</div></div>
+      <div class="row"><span class="ic">⚑</span><div><span>Office</span>No. 28, 7th Main, N.S. Palya, BTM Layout 2nd Stage, Bengaluru 560076</div></div>
+      <div class="row"><span class="ic">◷</span><div><span>Hours</span>Dispatch open 24 hours, every day</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a class="logo" href="#top" style="margin-bottom:14px;">
+          <span class="mark">R</span><span class="word">RAAHI<small>CABS · BENGALURU</small></span>
+        </a>
+        <p style="font-size:13.5px; color:#8890a0; line-height:1.7; max-width:280px;">Airport, outstation and local taxi service across Bengaluru since 2011. Metered fares, verified drivers.</p>
+      </div>
+      <div>
+        <h5>Company</h5>
+        <ul><li><a href="#about">About</a></li><li><a href="#fleet">Fleet</a></li><li><a href="#contact">Contact</a></li></ul>
+      </div>
+      <div>
+        <h5>Services</h5>
+        <ul><li><a href="#airport">Airport Taxi</a></li><li><a href="#outstation">Outstation</a></li><li><a href="#fleet">Local Taxi</a></li></ul>
+      </div>
+      <div>
+        <h5>Dispatch</h5>
+        <ul>
+          <li>contact@raahicabs.example</li>
+          <li><a href="tel:08046844684">080-4684-4684</a></li>
+          <li>N.S. Palya, BTM Layout, Bengaluru</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Raahi Cabs. All rights reserved.</span>
+      <span>Design concept for demonstration purposes.</span>
+    </div>
+  </div>
+</footer>
+
+<div class="float-actions">
+  <a class="wa" href="https://wa.me/919606976835" target="_blank" rel="noopener" aria-label="WhatsApp">☎</a>
+  <a class="call" href="tel:08046844684" aria-label="Call">✆</a>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

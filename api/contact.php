@@ -1,11 +1,10 @@
 <?php
-/**
- * contact.php
- * Handles the "Send a message" contact form (see script.js -> submitForm).
- */
-
 declare(strict_types=1);
-require_once __DIR__ . '/config.php';
+/**
+ * api/contact.php
+ * AJAX handler for contact form submissions. Moved from root contact.php
+ */
+require_once __DIR__ . '/../config/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(false, 'Invalid request method.');
@@ -39,8 +38,5 @@ $saved = append_json_record(CONTACTS_FILE, $record);
 if (!$saved) {
     json_response(false, 'Could not send your message right now. Please try again or call 080-4684-4684.');
 }
-
-// In production: send an email/Slack notification to the dispatch team here,
-// e.g. mail('info@jbtravelsbelagavi.com', 'New enquiry', ...);
 
 json_response(true, 'Thanks — your message has been received. Our team will reach out shortly.');

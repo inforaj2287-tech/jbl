@@ -1,0 +1,14 @@
+/* Minimal admin styles */
+body{font-family:Arial,Helvetica,sans-serif;background:#f4f6f8;color:#222}
+.admin-topbar{background:#fff;padding:12px 20px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
+.admin-sidebar{width:200px;position:fixed;top:56px;left:0;bottom:0;background:#fff;border-right:1px solid #eee;padding:20px}
+.admin-sidebar ul{padding:0;margin:0}
+.admin-sidebar li{margin:8px 0}
+.admin-sidebar a{color:#333;text-decoration:none}
+.admin-main{margin-left:240px;padding:28px}
+.admin-table{width:100%;border-collapse:collapse}
+.admin-table th,.admin-table td{border:1px solid #eee;padding:8px;text-align:left}
+.btn{display:inline-block;padding:8px 12px;background:#0073e6;color:#fff;border-radius:4px;text-decoration:none}
+.cards{display:flex;gap:16px}
+.card{background:#fff;padding:16px;border:1px solid #eee;border-radius:6px;min-width:160px}
+.err{background:#ffe6e6;padding:8px;border-radius:4px;color:#b00000}

@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ---------------- mobile nav ---------------- */
   var navToggle = document.getElementById('navToggle');
   var navLinks = document.getElementById('navLinks');
-  navToggle.addEventListener('click', function () {
+  navToggle && navToggle.addEventListener('click', function () {
     var open = navLinks.style.display === 'flex';
     navLinks.style.display = open ? 'none' : 'flex';
     navLinks.style.cssText += 'flex-direction:column; position:absolute; top:76px; left:0; right:0; background:#12161d; padding:20px 24px; gap:18px;';
@@ -50,8 +50,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 22);
   }
 
-  kmInput.addEventListener('input', calcFare);
-  cabSelect.addEventListener('change', calcFare);
+  kmInput && kmInput.addEventListener('input', calcFare);
+  cabSelect && cabSelect.addEventListener('change', calcFare);
   calcFare();
 
   /* ---------------- FAQ accordion ---------------- */
@@ -67,10 +67,10 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ---------------- testimonial carousel ---------------- */
   var track = document.getElementById('testiTrack');
   var cardWidth = 360;
-  document.getElementById('testiNext').addEventListener('click', function () {
+  document.getElementById('testiNext') && document.getElementById('testiNext').addEventListener('click', function () {
     track.scrollBy({ left: cardWidth, behavior: 'smooth' });
   });
-  document.getElementById('testiPrev').addEventListener('click', function () {
+  document.getElementById('testiPrev') && document.getElementById('testiPrev').addEventListener('click', function () {
     track.scrollBy({ left: -cardWidth, behavior: 'smooth' });
   });
 
@@ -84,20 +84,20 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 4000);
   }
 
-  /* ---------------- booking form -> booking.php ---------------- */
+  /* ---------------- booking form -> /api/booking.php ---------------- */
   var bookingForm = document.getElementById('bookingForm');
   var bookingMsg = document.getElementById('bookingMsg');
-  bookingForm.addEventListener('submit', function (e) {
+  bookingForm && bookingForm.addEventListener('submit', function (e) {
     e.preventDefault();
-    submitForm(bookingForm, 'booking.php', bookingMsg, 'Booking confirmed — a driver will be assigned shortly. We\'ll text you the details.');
+    submitForm(bookingForm, 'api/booking.php', bookingMsg, 'Booking confirmed — a driver will be assigned shortly. We\'ll text you the details.');
   });
 
-  /* ---------------- contact form -> contact.php ---------------- */
+  /* ---------------- contact form -> /api/contact.php ---------------- */
   var contactForm = document.getElementById('contactForm');
   var contactMsg = document.getElementById('contactMsg');
-  contactForm.addEventListener('submit', function (e) {
+  contactForm && contactForm.addEventListener('submit', function (e) {
     e.preventDefault();
-    submitForm(contactForm, 'contact.php', contactMsg, 'Message sent — our team will get back to you shortly.');
+    submitForm(contactForm, 'api/contact.php', contactMsg, 'Message sent — our team will get back to you shortly.');
   });
 
   function submitForm(form, endpoint, msgEl, successText) {
@@ -119,7 +119,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       })
       .catch(function () {
-        // PHP backend not reachable (e.g. static preview without a PHP server)
         msgEl.textContent = 'Could not reach the server. If you are previewing this file directly, run it through a PHP server (see README).';
         msgEl.className = 'form-msg err';
       });

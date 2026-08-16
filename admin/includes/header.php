@@ -1,5 +1,4 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
 ?>
 <!doctype html>
 <html>
@@ -19,5 +18,5 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 <body>
   <div class="admin-topbar">
     <div class="brand">JB Travels — Admin</div>
-    <div class="actions">Logged in as <?=htmlspecialchars($_SESSION['admin_name'] ?? '');?> <a href="logout.php">Logout</a></div>
+    <div class="actions"></div>
   </div>

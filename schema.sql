@@ -40,15 +40,7 @@ CREATE TABLE customers (
     INDEX idx_mobile (mobile)
 );
 
-CREATE TABLE admins (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(150) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    name VARCHAR(150) DEFAULT 'Administrator',
-    role VARCHAR(50) DEFAULT 'admin',
-    status TINYINT(1) DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- Admin tables removed: no admin data persisted in DB in initial simplified setup.
 
 CREATE TABLE cars (
     id INT AUTO_INCREMENT PRIMARY KEY,

@@ -1,7 +1,4 @@
 <?php
-declare(strict_types=1);
-session_start();
-session_unset();
-session_destroy();
-header('Location: login.php');
+// Logout removed — redirect to dashboard
+header('Location: dashboard.php');
 exit;

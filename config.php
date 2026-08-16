@@ -1,7 +1,7 @@
 <?php
 /**
  * config.php
- * Shared helpers for the Raahi Cabs demo backend.
+ * Shared helpers for the JB Travels Belagavi backend.
  * Storage: flat JSON files under /data (swap for MySQL/PDO in production —
  * see the notes at the bottom of this file).
  */
@@ -54,7 +54,7 @@ function cab_rate(string $cabType): float {
 
 /* -----------------------------------------------------------------------
  * Swapping to MySQL later:
- * $pdo = new PDO('mysql:host=localhost;dbname=raahi;charset=utf8mb4', $user, $pass,
+ * $pdo = new PDO('mysql:host=localhost;dbname=jbtravels_belagavi;charset=utf8mb4', $user, $pass,
  *     [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
  * Replace append_json_record() calls with prepared INSERT statements.
  * --------------------------------------------------------------------- */

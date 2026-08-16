@@ -41,6 +41,6 @@ if (!$saved) {
 }
 
 // In production: send an email/Slack notification to the dispatch team here,
-// e.g. mail('contact@raahicabs.example', 'New enquiry', ...);
+// e.g. mail('info@jbtravelsbelagavi.com', 'New enquiry', ...);
 
 json_response(true, 'Thanks — your message has been received. Our team will reach out shortly.');

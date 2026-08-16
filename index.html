@@ -7,7 +7,7 @@
 <meta name="description" content="Book reliable airport pickup &amp; drop, outstation car rides and local travel across Belagavi (Belgaum) and nearby cities like Gokak, Nipani, Khanapur, Hubballi and Dharwad.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="assets/css/app.css">
 </head>
 <body>
 
@@ -103,8 +103,12 @@
           <div class="field"><label for="phone">Phone</label><input type="tel" id="phone" name="phone" pattern="[0-9]{10}" placeholder="10-digit number" required></div>
         </div>
 
-        <button type="submit" class="btn btn-yellow btn-block">Confirm Booking</button>
+        <div style="display:flex; gap:10px; margin-top:8px;">
+          <button type="button" id="searchCars" class="btn btn-ghost">SEARCH CARS</button>
+          <button type="submit" class="btn btn-yellow btn-block">Confirm Booking</button>
+        </div>
         <div class="form-msg" id="bookingMsg"></div>
+        <div id="searchResults" style="margin-top:14px;"></div>
       </form>
     </div>
   </div>
@@ -401,6 +405,7 @@
   <a class="call" href="tel:08046844684" aria-label="Call">✆</a>
 </div>
 
-<script src="script.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/app.js"></script>
 </body>
 </html>

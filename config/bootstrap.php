@@ -1,14 +1,11 @@
 <?php
 /**
- * config.php
- * Shared helpers for the JB Travels Belagavi backend.
- * Storage: flat JSON files under /data (swap for MySQL/PDO in production —
- * see the notes at the bottom of this file).
+ * config/bootstrap.php
+ * Moved from root config.php — provides small helpers used by legacy handlers.
  */
-
 declare(strict_types=1);
 
-define('DATA_DIR', __DIR__ . '/data');
+define('DATA_DIR', __DIR__ . '/../data');
 define('BOOKINGS_FILE', DATA_DIR . '/bookings.json');
 define('CONTACTS_FILE', DATA_DIR . '/contacts.json');
 
@@ -32,7 +29,6 @@ function append_json_record(string $path, array $record): bool {
     return file_put_contents($path, json_encode($records, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) !== false;
 }
 
-/** Basic string cleanup — trims and strips tags. Use prepared statements for any real DB writes. */
 function clean(string $value): string {
     return trim(strip_tags($value));
 }
@@ -43,18 +39,10 @@ function json_response(bool $success, string $message, array $extra = []): void 
     exit;
 }
 
-/**
- * Rate table kept server-side too, so the meter estimate can be recalculated
- * and trusted rather than taking the client's number as-is.
- */
 function cab_rate(string $cabType): float {
     $rates = ['hatchback' => 9.50, 'sedan' => 10.50, 'suv' => 16.00];
     return $rates[$cabType] ?? $rates['hatchback'];
 }
 
-/* -----------------------------------------------------------------------
- * Swapping to MySQL later:
- * $pdo = new PDO('mysql:host=localhost;dbname=jbtravels_belagavi;charset=utf8mb4', $user, $pass,
- *     [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
- * Replace append_json_record() calls with prepared INSERT statements.
- * --------------------------------------------------------------------- */
+/* Notes: this bootstrap file is intentionally lightweight for the current demo.
+   For the full implementation use PDO and the services in /config/Database.php */

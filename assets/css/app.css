@@ -99,9 +99,14 @@ h1,h2,h3,h4{ margin:0; font-family:var(--f-display); font-weight:700; letter-spa
 
 /* ---------- hero ---------- */
 .hero{
+	/* Gradient overlay on top of image. Prefer webp, fallback to svg. */
 	background:
-		radial-gradient(900px 500px at 85% -10%, rgba(255,201,60,0.14), transparent 60%),
-		var(--asphalt);
+		linear-gradient(90deg, rgba(18,22,29,0.92) 0%, rgba(18,22,29,0.72) 42%, rgba(18,22,29,0.32) 68%, rgba(18,22,29,0.55) 100%),
+		url('../images/hero-woman.jpg'),
+		url('../images/hero-woman.jpg');
+	background-size: cover;
+	background-position: center center;
+	background-repeat: no-repeat;
 	color:var(--paper);
 	padding:64px 0 0;
 	position:relative;
@@ -120,13 +125,16 @@ h1,h2,h3,h4{ margin:0; font-family:var(--f-display); font-weight:700; letter-spa
 	box-shadow:0 30px 60px -20px rgba(0,0,0,0.55);
 	overflow:hidden;
 }
-.meter-tabs{ display:flex; background:var(--paper-2); }
+.meter-tabs{ display:flex; background:var(--paper-2); border-radius:var(--radius) var(--radius) 0 0; overflow:hidden; }
 .meter-tabs button{
 	flex:1; border:0; background:transparent; padding:16px 8px; font-weight:700; font-size:13px;
 	text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft); border-bottom:3px solid transparent;
 }
-.meter-tabs button.active{ background:var(--paper); color:var(--ink); border-bottom-color:var(--yellow); }
+.meter-tabs button.active{ background:var(--meter); color:#fff; border-bottom-color:var(--meter); }
+.btn-meter{ background:var(--meter); border-color:var(--meter); color:#fff; }
+.btn-meter:hover{ background:var(--meter-dim); border-color:var(--meter-dim); }
 .meter-body{ padding:26px 26px 24px; }
+.meter-heading{ font-family:var(--f-display); font-size:20px; font-weight:800; color:var(--ink); margin-bottom:16px; }
 .field{ margin-bottom:14px; }
 .field label{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft); margin-bottom:6px; font-weight:700; }
 .field input, .field select{

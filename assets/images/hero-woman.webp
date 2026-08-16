@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0" stop-color="#12161d" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#1b212b" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="#12161d"/>
+  <rect width="100%" height="100%" fill="url(#g)" opacity="0.9"/>
+  <g transform="translate(120,80)">
+    <rect x="0" y="0" width="1400" height="740" rx="16" fill="#f3f4f6" opacity="0"/>
+    <!-- simple abstract figure and city shapes as placeholder -->
+    <g transform="translate(220,80) scale(1.1)">
+      <circle cx="220" cy="120" r="84" fill="#f6a55f" opacity="0.1"/>
+      <rect x="160" y="210" width="120" height="180" rx="14" fill="#ffd39b" opacity="0.12"/>
+      <path d="M60 360 C120 260 280 260 340 360 L300 420 L100 420 Z" fill="#ffd39b" opacity="0.12"/>
+      <!-- person silhouette -->
+      <g transform="translate(420,60)">
+        <ellipse cx="0" cy="0" rx="60" ry="80" fill="#fff" opacity="0.12"/>
+        <rect x="-40" y="70" width="80" height="140" rx="20" fill="#fff" opacity="0.12"/>
+      </g>
+    </g>
+  </g>
+  <!-- subtle pattern on right -->
+  <g transform="translate(900,140)">
+    <rect x="0" y="0" width="600" height="560" fill="#ffffff" opacity="0.02" rx="8"/>
+  </g>
+</svg>

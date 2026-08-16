@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Search Results — JB Travels</title>
+  <link href="assets/css/app.css" rel="stylesheet">
+  <style>
+    body{ background:var(--paper); }
+    .results-hero{ background:#fff;border-bottom:1px solid var(--line);padding:18px 0;margin-bottom:22px }
+    .results-crumb{ font-size:14px;color:var(--ink-soft) }
+    .results-top{ display:flex;justify-content:space-between;align-items:center;padding:10px 0 }
+    .results-top h2{ font-size:22px; text-transform:none; }
+    .modify-btn{ background:var(--yellow);border-radius:24px;padding:10px 22px;color:var(--ink);font-weight:700;font-size:13px;border:none;cursor:pointer; }
+    .results-meta{ display:flex;gap:40px;color:var(--ink-soft);font-size:14px;padding:14px 0 4px;flex-wrap:wrap; }
+    .results-meta strong{ display:block;color:var(--ink);font-size:15px;margin-top:2px; }
+
+    .car-table-head{ display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:0; margin-bottom:8px; }
+    .car-table-head .col{ text-align:center; padding:14px 10px; font-weight:800; font-size:14px; color:#fff; }
+    .car-table-head .col.car-col{ background:var(--paper-2); color:var(--ink-soft); text-align:left; }
+    .car-table-head .col.non-ac{ background:var(--meter); }
+    .car-table-head .col.ac{ background:#0a91b8; }
+
+    .car-row{ display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:0; align-items:center; padding:18px 10px; border-bottom:1px solid var(--line); background:#fff; }
+    .car-left{ display:flex; gap:16px; align-items:center }
+    .car-left img{ width:110px; height:74px; object-fit:cover; border-radius:6px; background:var(--paper-2); }
+    .car-name{ font-weight:800; font-size:16px }
+    .car-meta{ color:var(--ink-soft); font-size:13px; margin-top:2px; }
+
+    .col{ text-align:center; }
+    .coupon-pill{ display:inline-block;background:var(--meter);color:#fff;padding:7px 14px;border-radius:20px;font-weight:700;font-size:13px; }
+    .coupon-pill.ac-pill{ background:#0a91b8; }
+    .fare-amt{ font-size:20px; font-weight:800; font-family:var(--f-meter); color:var(--ink); }
+    .fare-amt.na{ font-size:14px; font-weight:700; color:var(--ink-soft); }
+    .book-btn{ display:inline-block;background:var(--meter);color:#fff;padding:9px 20px;border-radius:20px;font-weight:700;font-size:13px;margin-top:8px; }
+    .book-btn.ac-btn{ background:#0a91b8; }
+    .fare-note{ margin-top:8px; }
+    .fare-note a{ color:var(--ink-soft); font-size:12px; text-decoration:underline; }
+    .state-msg{ padding:40px; text-align:center; color:var(--ink-soft); }
+
+    @media (max-width:900px){
+      .car-table-head{ display:none; }
+      .car-row{ grid-template-columns:1fr; gap:14px; text-align:left; }
+      .col{ text-align:left; display:flex; align-items:center; justify-content:space-between; border-top:1px dashed var(--line); padding-top:10px; }
+      .col::before{ content:attr(data-label); font-weight:700; color:var(--ink-soft); font-size:12px; text-transform:uppercase; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="logo" href="index.html"><span class="mark">JB</span><span class="word">JB TRAVELS <small>BELAGAVI</small></span></a>
+      <nav class="nav-links">
+        <a href="index.html#top">Home</a>
+        <a href="index.html#airport">Airport</a>
+        <a href="index.html#outstation">Outstation</a>
+        <a href="index.html#fleet">Local</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap" style="padding-top:0;padding-bottom:60px">
+    <div class="results-hero">
+      <div class="results-top">
+        <div>
+          <div class="results-crumb">Home &nbsp;&gt;&nbsp; Select Car</div>
+          <h2 id="routeTitle">— <span style="color:var(--ink-soft); font-weight:400; font-size:15px;">&nbsp; &gt; &nbsp;—</span></h2>
+        </div>
+        <button class="modify-btn" onclick="location.href='index.html#book'">Modify Search</button>
+      </div>
+      <div class="results-meta">
+        <div>Pick up Location<strong id="metaPickup">—</strong></div>
+        <div>Drop Location<strong id="metaDrop">—</strong></div>
+        <div>Time<strong id="metaTime">—</strong></div>
+        <div>Pickup Date<strong id="metaDate">—</strong></div>
+      </div>
+    </div>
+
+    <section>
+      <div class="car-table-head">
+        <div class="col car-col">Car Name</div>
+        <div class="col non-ac">NON-AC Coupons</div>
+        <div class="col non-ac">NON-AC</div>
+        <div class="col ac">For AC Coupons</div>
+        <div class="col ac">AC</div>
+      </div>
+
+      <div id="carRows">
+        <div class="state-msg" id="stateMsg">Searching cars…</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap" style="padding-top:24px">
+      <div style="color:#c7cbd4">© 2026 JB Travels Belagavi.</div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var pickup = params.get('pickup') || 'Bangalore';
+      var drop = params.get('drop') || 'Hubli';
+      var date = params.get('date') || new Date().toISOString().slice(0, 10);
+      var time = params.get('time') || '09:00';
+      var trip = params.get('trip') || 'outstation';
+
+      document.getElementById('routeTitle').innerHTML =
+        escapeHtml(pickup) + ' <span style="color:var(--ink-soft); font-weight:400; font-size:15px;">&nbsp; &gt; &nbsp;' + escapeHtml(drop) + '</span>';
+      document.getElementById('metaPickup').textContent = pickup;
+      document.getElementById('metaDrop').textContent = drop;
+      document.getElementById('metaTime').textContent = time;
+      document.getElementById('metaDate').textContent = date;
+
+      var payload = {
+        service_type: trip.toUpperCase(),
+        trip_type: 'ONE_WAY',
+        from_location_id: 1,
+        to_location_id: 2,
+        pickup_date: date,
+        pickup_time: time
+      };
+
+      fetch('api/search.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (json) {
+          if (!json.success) { return showMessage(json.message || 'No cars found.'); }
+          renderRows(groupCars(json.cars || []));
+        })
+        .catch(function () {
+          showMessage('Could not reach the server. Showing a sample list instead.');
+          renderRows(groupCars(sampleCars()));
+        });
+
+      function groupCars(cars) {
+        var groups = {};
+        cars.forEach(function (c) {
+          var key = c.car_name + '|' + c.seats;
+          if (!groups[key]) {
+            groups[key] = { car_name: c.car_name, seats: c.seats, category: c.category, image: c.image, ac: null, nonAc: null };
+          }
+          var isAc = (c.ac_type || '').toUpperCase().indexOf('NON') === -1;
+          var fare = c.fare_breakdown && c.fare_breakdown.total ? c.fare_breakdown.total : null;
+          if (isAc) groups[key].ac = fare; else groups[key].nonAc = fare;
+        });
+        return Object.keys(groups).map(function (k) { return groups[k]; });
+      }
+
+      function renderRows(rows) {
+        var wrap = document.getElementById('carRows');
+        if (!rows.length) { return showMessage('No matching vehicles available for this route.'); }
+        wrap.innerHTML = rows.map(function (r) {
+          return '' +
+            '<div class="car-row">' +
+              '<div class="car-left">' +
+                (r.image ? '<img src="' + escapeHtml(r.image) + '" alt="' + escapeHtml(r.car_name) + '">' : '<div style="width:110px;height:74px;border-radius:6px;background:var(--paper-2)"></div>') +
+                '<div><div class="car-name">' + escapeHtml(r.car_name) + '</div>' +
+                '<div class="car-meta">' + r.seats + ' seats &nbsp;|&nbsp; ' + escapeHtml(r.category || '') + '</div></div>' +
+              '</div>' +
+              '<div class="col" data-label="NON-AC Coupons"><span class="coupon-pill">Save Upto ₹0</span></div>' +
+              '<div class="col" data-label="NON-AC">' + fareCell(r.nonAc, 'book-btn') + '</div>' +
+              '<div class="col" data-label="For AC Coupons"><span class="coupon-pill ac-pill">Save Upto ₹0</span></div>' +
+              '<div class="col" data-label="AC">' + fareCell(r.ac, 'book-btn ac-btn') + '</div>' +
+            '</div>';
+        }).join('');
+      }
+
+      function fareCell(amount, btnClass) {
+        if (!amount) return '<div class="fare-amt na">Not Available</div>';
+        return '<div class="fare-amt">₹ ' + Number(amount).toLocaleString('en-IN') + '</div>' +
+          '<a class="' + btnClass + '" href="#">BOOK NOW</a>' +
+          '<div class="fare-note"><a href="#">Fare Details</a></div>';
+      }
+
+      function showMessage(text) {
+        document.getElementById('stateMsg').textContent = text;
+      }
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
+      }
+
+      // Fallback sample data so the page still demos the layout without a DB/API.
+      function sampleCars() {
+        return [
+          { car_name: 'Swift Dzire', seats: 4, category: 'Sedan', image: '', ac_type: 'NON-AC', fare_breakdown: { total: 8128 } },
+          { car_name: 'Swift Dzire', seats: 4, category: 'Sedan', image: '', ac_type: 'AC', fare_breakdown: { total: 8540 } },
+          { car_name: 'Toyota Innova Crysta', seats: 6, category: 'SUV', image: '', ac_type: 'AC', fare_breakdown: { total: 12298 } },
+          { car_name: 'Toyota Innova', seats: 7, category: 'SUV', image: '', ac_type: 'AC', fare_breakdown: { total: 13122 } }
+        ];
+      }
+    })();
+  </script>
+</body>
+</html>

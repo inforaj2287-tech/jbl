@@ -1,4 +1,4 @@
-# Raahi Cabs — Taxi Booking Website
+# JB Travels Belagavi — Car Booking Website
 
 A full taxi-service website (HTML/CSS/JS front end + PHP backend), designed
 around a "taxi meter" visual concept: LCD-green fare digits, dashed
@@ -28,14 +28,14 @@ contact forms need a PHP server** to actually submit (they call
 
 **Option 1 — PHP's built-in server (fastest):**
 ```bash
-cd raahi-cabs
+cd jbl
 php -S localhost:8000
 ```
 Then open `http://localhost:8000` in your browser.
 
 **Option 2 — XAMPP / WAMP / MAMP:**
-Copy the whole `raahi-cabs` folder into `htdocs` (or the equivalent),
-start Apache, and visit `http://localhost/raahi-cabs/`.
+Copy the whole `jbl` folder into `htdocs` (or the equivalent),
+start Apache, and visit `http://localhost/jbl/`.
 
 **Option 3 — Any shared/PHP host:**
 Upload all files via FTP. Make sure the `data/` folder is writable

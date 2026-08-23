@@ -53,14 +53,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 4000);
   }
 
-  /* ---------------- booking form -> /api/booking.php ---------------- */
-  var bookingForm = document.getElementById('bookingForm');
-  var bookingMsg = document.getElementById('bookingMsg');
-  bookingForm && bookingForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    submitForm(bookingForm, 'api/booking.php', bookingMsg, 'Booking confirmed — a driver will be assigned shortly. We\'ll text you the details.');
-  });
-
   /* ---------------- contact form -> /api/contact.php ---------------- */
   var contactForm = document.getElementById('contactForm');
   var contactMsg = document.getElementById('contactMsg');

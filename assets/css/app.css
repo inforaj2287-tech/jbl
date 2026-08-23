@@ -151,6 +151,8 @@ h1,h2,h3,h4{ margin:0; font-family:var(--f-display); font-weight:700; letter-spa
 .fare-readout .label{ font-size:11px; color:#9aa1ad; text-transform:uppercase; letter-spacing:0.1em; }
 .fare-readout .digits{ font-family:var(--f-meter); font-size:26px; color:var(--meter); letter-spacing:0.02em; }
 .fare-readout .digits::before{ content:"₹"; font-size:18px; margin-right:2px; color:#5fd9a4; }
+.booking-actions{ margin-top:8px; }
+.booking-actions .btn{ min-height:48px; }
 
 /* ---------- USP strip ---------- */
 .usp-strip{ background:var(--paper-2); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }

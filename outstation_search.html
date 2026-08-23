@@ -284,6 +284,7 @@
           event.preventDefault();
           var selected = JSON.parse(bookNow.getAttribute('data-car'));
           var fare = selected.fare || {};
+          var fareBreakdown = fare.fare_breakdown || fare.fare || fare;
           var message = [
             'Hello JB Travels, I would like to book a car.',
             '',
@@ -294,8 +295,8 @@
             'Pickup Date: ' + date,
             'Pickup Time: ' + time,
             'Trip Type: ' + trip,
-            'Distance: ' + Number(fare.distance_km || 0).toLocaleString('en-IN') + ' km',
-            'Estimated Fare: ₹' + Number(fare.total || 0).toLocaleString('en-IN'),
+            'Distance: ' + Number(fareBreakdown.distance_km || 0).toLocaleString('en-IN') + ' km',
+            'Estimated Fare: ₹' + Number(fareBreakdown.total != null ? fareBreakdown.total : fare.total || 0).toLocaleString('en-IN'),
             '',
             'Please confirm availability.'
           ].join('\n');

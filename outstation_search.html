@@ -38,6 +38,22 @@
     .fare-note a{ color:var(--ink-soft); font-size:12px; text-decoration:underline; }
     .state-msg{ padding:40px; text-align:center; color:var(--ink-soft); }
 
+    .fare-modal{ display:none; position:fixed; inset:0; z-index:100; padding:24px; background:rgba(18,22,29,.72); align-items:center; justify-content:center; }
+    .fare-modal.is-open{ display:flex; }
+    .fare-dialog{ width:min(820px,100%); max-height:90vh; overflow:auto; background:#fff; border-radius:8px; box-shadow:0 24px 70px rgba(0,0,0,.35); }
+    .fare-dialog-head{ display:flex; justify-content:space-between; gap:20px; padding:26px 30px 22px; background:var(--meter); color:#fff; }
+    .fare-dialog-head h2{ font-family:var(--f-body); font-size:22px; }
+    .fare-dialog-head p{ margin:6px 0 0; font-size:13px; opacity:.9; }
+    .fare-close{ border:0; background:transparent; color:#fff; font-size:25px; line-height:1; padding:0 4px; }
+    .fare-breakdown{ width:calc(100% - 36px); margin:18px; border-collapse:collapse; }
+    .fare-breakdown th,.fare-breakdown td{ border:1px solid var(--ink); padding:11px 12px; text-align:left; }
+    .fare-breakdown th{ background:var(--paper-2); }
+    .fare-breakdown td:last-child,.fare-breakdown th:last-child{ text-align:right; white-space:nowrap; }
+    .fare-breakdown .total-row{ font-weight:800; font-size:17px; }
+    .fare-terms{ margin:0 30px 26px; color:var(--ink-soft); font-size:13px; line-height:1.55; }
+    .fare-terms strong{ color:var(--ink); }
+    body.modal-open{ overflow:hidden; }
+
     @media (max-width:900px){
       .car-table-head{ display:none; }
       .car-row{ grid-template-columns:1fr; gap:14px; text-align:left; }
@@ -66,7 +82,7 @@
           <div class="results-crumb">Home &nbsp;&gt;&nbsp; Select Car</div>
           <h2 id="routeTitle">— <span style="color:var(--ink-soft); font-weight:400; font-size:15px;">&nbsp; &gt; &nbsp;—</span></h2>
         </div>
-        <button class="modify-btn" onclick="location.href='index.html#book'">Modify Search</button>
+        <button class="modify-btn" type="button" id="modifySearch">Modify Search</button>
       </div>
       <div class="results-meta">
         <div>Pick up Location<strong id="metaPickup">—</strong></div>
@@ -97,6 +113,24 @@
     </div>
   </footer>
 
+  <div class="fare-modal" id="fareModal" role="dialog" aria-modal="true" aria-labelledby="fareModalTitle">
+    <div class="fare-dialog">
+      <div class="fare-dialog-head">
+        <div><h2 id="fareModalTitle">Fare Details</h2><p id="fareModalSubtitle"></p></div>
+        <button class="fare-close" type="button" id="fareModalClose" aria-label="Close fare details">&times;</button>
+      </div>
+      <table class="fare-breakdown">
+        <thead><tr><th>Description</th><th>Information</th><th>Amount</th></tr></thead>
+        <tbody id="fareBreakdownBody"></tbody>
+      </table>
+      <div class="fare-terms"><strong>Extra charges and terms:</strong><br>
+        Toll, parking, interstate taxes and green tax apply as actuals.<br>
+        Distance beyond the included kilometres is charged at the displayed rate per kilometre.<br>
+        Night allowance may apply between 10:00 PM and 6:00 AM.
+      </div>
+    </div>
+  </div>
+
   <script>
     (function () {
       var params = new URLSearchParams(window.location.search);
@@ -113,11 +147,22 @@
       document.getElementById('metaTime').textContent = time;
       document.getElementById('metaDate').textContent = date;
 
+      document.getElementById('modifySearch').addEventListener('click', function () {
+        var modifyParams = new URLSearchParams({
+          trip: trip,
+          pickup: pickup,
+          drop: drop,
+          date: date,
+          time: time
+        });
+        window.location.href = 'index.html?' + modifyParams.toString() + '#book';
+      });
+
       var payload = {
         service_type: trip.toUpperCase(),
         trip_type: 'ONE_WAY',
-        from_location_id: 1,
-        to_location_id: 2,
+        pickup: pickup,
+        drop: drop,
         pickup_date: date,
         pickup_time: time
       };
@@ -144,9 +189,19 @@
           if (!groups[key]) {
             groups[key] = { car_name: c.car_name, seats: c.seats, category: c.category, image: c.image, ac: null, nonAc: null };
           }
+
+          // The search API returns one car row with nested AC/non-AC rates.
+          if (c.ac || c.non_ac) {
+            if (c.ac) groups[key].ac = c.ac;
+            if (c.non_ac) groups[key].nonAc = c.non_ac;
+            return;
+          }
+
+          // Keep support for the original flat response shape.
           var isAc = (c.ac_type || '').toUpperCase().indexOf('NON') === -1;
-          var fare = c.fare_breakdown && c.fare_breakdown.total ? c.fare_breakdown.total : null;
-          if (isAc) groups[key].ac = fare; else groups[key].nonAc = fare;
+          var fare = c.fare_breakdown && c.fare_breakdown.total != null ? c.fare_breakdown.total : null;
+          if (isAc) groups[key].ac = c.fare_breakdown || (fare == null ? null : { total: fare });
+          else groups[key].nonAc = c.fare_breakdown || (fare == null ? null : { total: fare });
         });
         return Object.keys(groups).map(function (k) { return groups[k]; });
       }
@@ -162,19 +217,56 @@
                 '<div><div class="car-name">' + escapeHtml(r.car_name) + '</div>' +
                 '<div class="car-meta">' + r.seats + ' seats &nbsp;|&nbsp; ' + escapeHtml(r.category || '') + '</div></div>' +
               '</div>' +
-              '<div class="col" data-label="NON-AC Coupons"><span class="coupon-pill">Save Upto ₹0</span></div>' +
+              '<div class="col" data-label="NON-AC Coupons"><span class="coupon-pill">Save Upto ₹' + discountAmount(r.nonAc) + '</span></div>' +
               '<div class="col" data-label="NON-AC">' + fareCell(r.nonAc, 'book-btn') + '</div>' +
-              '<div class="col" data-label="For AC Coupons"><span class="coupon-pill ac-pill">Save Upto ₹0</span></div>' +
+              '<div class="col" data-label="For AC Coupons"><span class="coupon-pill ac-pill">Save Upto ₹' + discountAmount(r.ac) + '</span></div>' +
               '<div class="col" data-label="AC">' + fareCell(r.ac, 'book-btn ac-btn') + '</div>' +
             '</div>';
         }).join('');
       }
 
       function fareCell(amount, btnClass) {
-        if (!amount) return '<div class="fare-amt na">Not Available</div>';
-        return '<div class="fare-amt">₹ ' + Number(amount).toLocaleString('en-IN') + '</div>' +
-          '<a class="' + btnClass + '" href="#">BOOK NOW</a>' +
-          '<div class="fare-note"><a href="#">Fare Details</a></div>';
+        if (amount == null) return '<div class="fare-amt na">Not Available</div>';
+        var total = typeof amount === 'object' ? amount.total : amount;
+        return '<div class="fare-amt">₹ ' + Number(total).toLocaleString('en-IN') + '</div>' +
+          '<a class="' + btnClass + '" href="index.html#book">BOOK NOW</a>' +
+          '<div class="fare-note"><a href="#" class="fare-details" data-fare="' + escapeHtml(JSON.stringify(amount)) + '">Fare Details</a></div>';
+      }
+
+      function discountAmount(fare) {
+        return fare && fare.discount_amount != null ? Number(fare.discount_amount).toLocaleString('en-IN') : '0';
+      }
+
+      function money(value) {
+        return '₹ ' + Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function openFareDetails(fare) {
+        var breakdown = fare && (fare.fare_breakdown || fare.fare) ? (fare.fare_breakdown || fare.fare) : fare;
+        var chargeableKm = Number(breakdown.chargeable_km || breakdown.distance_km || fare.minimum_km || 0);
+        var rate = Number(breakdown.rate_per_km || fare.rate_per_km || 0);
+        var discount = Number(breakdown.discount != null ? breakdown.discount : fare.discount_amount || 0);
+        var rows = [
+          ['Included kilometres', chargeableKm.toLocaleString('en-IN') + ' km x ' + money(rate), money(breakdown.distance_fare)],
+          ['Additional fare/km beyond included kilometres', money(rate) + '/KM', ''],
+          ['Base fare', '', money(breakdown.base_fare)],
+          ['Driver allowance', (breakdown.trip_multiplier || 1) + ' x ' + money(breakdown.driver_allowance), money(breakdown.driver_allowance)],
+          ['Toll and permit charges', '', money(Number(breakdown.toll_charge || 0) + Number(breakdown.permit_charge || 0))],
+          ['Night charge', '', money(breakdown.night_charge)],
+          ['Coupon discount', '', '- ' + money(discount)],
+          ['Tax', Number(breakdown.tax_percent || 0).toFixed(2) + '%', money(breakdown.tax_amount)]
+        ];
+        document.getElementById('fareBreakdownBody').innerHTML = rows.map(function (row) {
+          return '<tr><th>' + escapeHtml(row[0]) + '</th><td>' + escapeHtml(row[1]) + '</td><td>' + escapeHtml(row[2]) + '</td></tr>';
+        }).join('') + '<tr class="total-row"><th colspan="2">Total Fare</th><td>' + escapeHtml(money(breakdown.total != null ? breakdown.total : fare.total)) + '</td></tr>';
+        document.getElementById('fareModalSubtitle').textContent = 'Distance-based fare calculation';
+        document.getElementById('fareModal').classList.add('is-open');
+        document.body.classList.add('modal-open');
+      }
+
+      function closeFareDetails() {
+        document.getElementById('fareModal').classList.remove('is-open');
+        document.body.classList.remove('modal-open');
       }
 
       function showMessage(text) {
@@ -184,6 +276,18 @@
       function escapeHtml(s) {
         return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
       }
+
+      document.addEventListener('click', function (event) {
+        var details = event.target.closest('.fare-details');
+        if (details) {
+          event.preventDefault();
+          openFareDetails(JSON.parse(details.getAttribute('data-fare')));
+        }
+        if (event.target.id === 'fareModal' || event.target.id === 'fareModalClose') closeFareDetails();
+      });
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') closeFareDetails();
+      });
 
       // Fallback sample data so the page still demos the layout without a DB/API.
       function sampleCars() {

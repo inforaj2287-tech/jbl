@@ -1,12 +1,12 @@
 <?php
 /**
  * config/bootstrap.php
- * Moved from root config.php — provides small helpers used by legacy handlers.
+ * Small shared helpers used by the public-facing AJAX handlers
+ * (api/contact.php, api/booking.php).
  */
 declare(strict_types=1);
 
 define('DATA_DIR', __DIR__ . '/../data');
-define('BOOKINGS_FILE', DATA_DIR . '/bookings.json');
 define('CONTACTS_FILE', DATA_DIR . '/contacts.json');
 
 function ensure_data_dir(): void {
@@ -38,38 +38,3 @@ function json_response(bool $success, string $message, array $extra = []): void 
     echo json_encode(array_merge(['success' => $success, 'message' => $message], $extra));
     exit;
 }
-
-function cab_rate(string $cabType): float {
-    $rates = ['hatchback' => 9.50, 'sedan' => 10.50, 'suv' => 16.00];
-    return $rates[$cabType] ?? $rates['hatchback'];
-}
-
-// Admin registration feature toggle (enable via env ADMIN_REGISTRATION=1)
-if (!defined('ADMIN_REGISTRATION_ENABLED')) {
-    define('ADMIN_REGISTRATION_ENABLED', getenv('ADMIN_REGISTRATION') === '1');
-}
-
-/**
- * Log admin actions. Tries DB insert, falls back to file logging.
- */
-function admin_log(?int $adminId, string $action, string $remarks = ''): void {
-    $time = date('c');
-    $entry = [$time, $adminId ?: 0, $action, $remarks];
-    // try DB
-    try {
-        require_once __DIR__ . '/Database.php';
-        $pdo = \Config\Database::getConnection();
-        $stmt = $pdo->prepare('INSERT INTO admin_logs (admin_id, action, remarks) VALUES (?,?,?)');
-        $stmt->execute([$adminId, $action, $remarks]);
-        return;
-    } catch (Throwable $e) {
-        // fallback to file
-        $logDir = __DIR__ . '/../data';
-        if (!is_dir($logDir)) mkdir($logDir, 0755, true);
-        $line = implode(' | ', $entry) . PHP_EOL;
-        file_put_contents($logDir . '/admin.log', $line, FILE_APPEND | LOCK_EX);
-    }
-}
-
-/* Notes: this bootstrap file is intentionally lightweight for the current demo.
-   For the full implementation use PDO and the services in /config/Database.php */

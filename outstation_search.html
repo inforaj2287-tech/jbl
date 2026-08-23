@@ -82,7 +82,7 @@
           <div class="results-crumb">Home &nbsp;&gt;&nbsp; Select Car</div>
           <h2 id="routeTitle">— <span style="color:var(--ink-soft); font-weight:400; font-size:15px;">&nbsp; &gt; &nbsp;—</span></h2>
         </div>
-        <button class="modify-btn" onclick="location.href='index.html#book'">Modify Search</button>
+        <button class="modify-btn" type="button" id="modifySearch">Modify Search</button>
       </div>
       <div class="results-meta">
         <div>Pick up Location<strong id="metaPickup">—</strong></div>
@@ -147,11 +147,22 @@
       document.getElementById('metaTime').textContent = time;
       document.getElementById('metaDate').textContent = date;
 
+      document.getElementById('modifySearch').addEventListener('click', function () {
+        var modifyParams = new URLSearchParams({
+          trip: trip,
+          pickup: pickup,
+          drop: drop,
+          date: date,
+          time: time
+        });
+        window.location.href = 'index.html?' + modifyParams.toString() + '#book';
+      });
+
       var payload = {
         service_type: trip.toUpperCase(),
         trip_type: 'ONE_WAY',
-        from_location_id: 1,
-        to_location_id: 2,
+        pickup: pickup,
+        drop: drop,
         pickup_date: date,
         pickup_time: time
       };

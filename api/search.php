@@ -27,9 +27,19 @@ $tripType    = strtoupper(trim((string)($input['trip_type'] ?? 'ONE_WAY')));
 $pickupDate  = trim((string)($input['pickup_date'] ?? ''));
 $pickupTime  = trim((string)($input['pickup_time'] ?? ''));
 
-if ($pickupDate === '' || $pickupTime === '') {
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $pickupDate) || !strtotime($pickupDate)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Pickup date and time are required']);
+    echo json_encode(['success' => false, 'message' => 'A valid pickup date is required.']);
+    exit;
+}
+if ($pickupDate < date('Y-m-d')) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Pickup date cannot be in the past.']);
+    exit;
+}
+if (!preg_match('/^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/', $pickupTime)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'A valid pickup time is required.']);
     exit;
 }
 
@@ -59,12 +69,27 @@ try {
 
     $fromLoc = fetch_location($pdo, $fromId);
     $toLoc   = fetch_location($pdo, $toId);
+    if (!$fromLoc || !$toLoc || $fromId === $toId) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Pickup and drop must be different active locations.']);
+        exit;
+    }
 
     // ---- Distance, driven entirely by km (requirement: price by km) ----
     $distance = $serviceType === 'LOCAL' ? 0.0 : DistanceService::getDistanceKm($fromId, $toId);
 
     // ---- Active cars + their rates for this service type ----------
-    $carsStmt = $pdo->query('SELECT id, name, brand, model, category, seats, luggage_capacity, image, description FROM cars WHERE status = 1 ORDER BY seats ASC, name ASC');
+        $carsStmt = $pdo->prepare("SELECT id, name, brand, model, category, seats, luggage_capacity, image, description
+                FROM cars
+                WHERE status = 1
+                    AND NOT EXISTS (
+                            SELECT 1 FROM bookings b
+                            WHERE b.car_id = cars.id
+                                AND b.booking_status IN ('CONFIRMED','ASSIGNED','DRIVER_ASSIGNED','ON_TRIP')
+                                AND ? BETWEEN b.pickup_date AND COALESCE(b.return_date, b.pickup_date)
+                    )
+                ORDER BY seats ASC, name ASC");
+        $carsStmt->execute([$pickupDate]);
     $cars = $carsStmt->fetchAll();
 
     $rateStmt = $pdo->prepare('SELECT * FROM car_rates WHERE car_id = ? AND service_type = ? AND status = 1');
@@ -137,6 +162,13 @@ function resolve_location_id(\PDO $pdo, string $term): int
 {
     $term = trim($term);
     if ($term === '') return 0;
+
+    $aliases = [
+        'hubli' => 'Hubballi',
+        'bengaluru' => 'Bangalore',
+        'belgaum' => 'Belagavi',
+    ];
+    $term = $aliases[strtolower($term)] ?? $term;
 
     $stmt = $pdo->prepare('SELECT id FROM locations WHERE status = 1 AND city = ? LIMIT 1');
     $stmt->execute([$term]);

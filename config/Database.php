@@ -3,7 +3,13 @@ declare(strict_types=1);
 
 namespace Config;
 
-class Database {
+/**
+ * Simple PDO singleton. Reads connection settings from environment
+ * variables (falls back to sensible local-dev defaults) so the same
+ * code works on localhost, XAMPP, or a shared host.
+ */
+class Database
+{
     private static ?\PDO $pdo = null;
 
     public static function getConnection(): \PDO

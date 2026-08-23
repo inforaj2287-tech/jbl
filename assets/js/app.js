@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var social = document.createElement('div');
     social.className = 'footer-social';
     social.setAttribute('aria-label', 'Social links');
-    social.innerHTML = '<a href="https://wa.me/919606976835" target="_blank" rel="noopener" aria-label="WhatsApp">WA</a><a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">f</a><a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">ig</a>';
+    social.innerHTML = '<a href="https://wa.me/919535608945" target="_blank" rel="noopener" aria-label="WhatsApp">WA</a><a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">f</a><a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">ig</a>';
     var dispatch = footer.querySelector('.footer-grid > div:last-child');
     dispatch && dispatch.appendChild(social);
   });

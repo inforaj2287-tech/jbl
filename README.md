@@ -3,7 +3,7 @@
 A full taxi-service website (HTML/CSS/JS front end + PHP backend), designed
 around a "taxi meter" visual concept: LCD-green fare digits, dashed
 road-line dividers, and plate-style pricing cards. Structured after the
-sections on deepamtaxi.com (hero booking widget, airport fares, fleet,
+sections on jbtravels.com (hero booking widget, airport fares, fleet,
 offers, about, testimonials, FAQ, contact) with original copy, layout and
 branding.
 

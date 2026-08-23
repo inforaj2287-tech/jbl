@@ -288,6 +288,47 @@ h1,h2,h3,h4{ margin:0; font-family:var(--f-display); font-weight:700; letter-spa
 .footer-grid li{ margin-bottom:10px; font-size:14px; }
 .footer-grid a:hover{ color:var(--yellow); }
 .footer-bottom{ border-top:1px solid var(--line-light); padding-top:24px; display:flex; justify-content:space-between; font-size:13px; color:#7d8390; }
+.footer-bottom a:hover{ color:var(--yellow); }
+
+/* ---------- internal pages ---------- */
+.page-hero{ background:var(--asphalt); color:var(--paper); padding:82px 0 74px; }
+.page-hero h1{ max-width:760px; font-size:clamp(42px,6vw,72px); text-transform:uppercase; }
+.page-hero p{ max-width:650px; color:#c7cbd4; font-size:17px; line-height:1.7; margin:20px 0 0; }
+.page-content{ padding:76px 0 96px; }
+.content-narrow{ max-width:820px; margin:0 auto; }
+.content-narrow h2{ font-size:30px; text-transform:uppercase; margin:42px 0 14px; }
+.content-narrow h2:first-child{ margin-top:0; }
+.content-narrow h3{ font-family:var(--f-body); font-size:18px; margin:28px 0 8px; }
+.content-narrow p, .content-narrow li{ color:var(--ink-soft); font-size:15px; line-height:1.75; }
+.content-narrow ul{ list-style:disc; padding-left:22px; margin:10px 0 20px; }
+.content-narrow a{ color:var(--meter-dim); text-decoration:underline; }
+.service-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+.service-card{ background:var(--paper-2); border-top:4px solid var(--meter); padding:28px; }
+.service-card .service-icon{ width:72px; height:72px; display:flex; align-items:center; justify-content:center; margin-bottom:22px; border-radius:50%; color:#fff; font-size:34px; font-family:var(--f-display); font-weight:800; }
+.service-card:nth-child(1){ border-top-color:#168aad; }
+.service-card:nth-child(1) .service-icon{ background:#168aad; }
+.service-card:nth-child(2){ border-top-color:#f08a24; }
+.service-card:nth-child(2) .service-icon{ background:#f08a24; }
+.service-card:nth-child(3){ border-top-color:#7b61a8; }
+.service-card:nth-child(3) .service-icon{ background:#7b61a8; }
+.service-card:nth-child(4){ border-top-color:#e05263; }
+.service-card:nth-child(4) .service-icon{ background:#e05263; }
+.service-card:nth-child(5){ border-top-color:#2a9d8f; }
+.service-card:nth-child(5) .service-icon{ background:#2a9d8f; }
+.service-card:nth-child(6){ border-top-color:#d08b2f; }
+.service-card:nth-child(6) .service-icon{ background:#d08b2f; }
+.service-card h2{ font-size:26px; text-transform:uppercase; margin-bottom:10px; }
+.service-card p{ color:var(--ink-soft); font-size:15px; line-height:1.7; margin:0; }
+.page-intro{ max-width:720px; color:var(--ink-soft); font-size:17px; line-height:1.7; margin-bottom:38px; }
+.page-nav{ display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; }
+.page-nav a{ border:1px solid var(--line); padding:10px 14px; font-size:13px; font-weight:700; text-transform:uppercase; }
+.page-nav a:hover{ border-color:var(--meter); color:var(--meter-dim); }
+.footer-social{ display:flex; gap:10px; margin-top:20px; }
+.footer-social a{ width:36px; height:36px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line-light); border-radius:50%; color:var(--paper); font-size:14px; font-weight:800; }
+.footer-social a:hover{ background:var(--yellow); border-color:var(--yellow); color:var(--ink); }
+.legal-list{ counter-reset:legal; list-style:none !important; padding-left:0 !important; }
+.legal-list li{ counter-increment:legal; position:relative; padding-left:42px; margin:16px 0; }
+.legal-list li::before{ content:counter(legal); position:absolute; left:0; top:2px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:var(--yellow); color:var(--ink); font-family:var(--f-meter); font-size:12px; font-weight:700; }
 
 /* ---------- floating actions ---------- */
 .float-actions{ position:fixed; right:22px; bottom:22px; display:flex; flex-direction:column; gap:12px; z-index:60; }
@@ -305,6 +346,7 @@ h1,h2,h3,h4{ margin:0; font-family:var(--f-display); font-weight:700; letter-spa
 	.serve-list{ grid-template-columns:repeat(2,1fr); }
 	.about-grid, .contact-grid{ grid-template-columns:1fr; }
 	.footer-grid{ grid-template-columns:1fr 1fr; }
+	.service-grid{ grid-template-columns:1fr; }
 }
 @media (max-width:720px){
 	.nav-links, .header-cta .phone-pill{ display:none; }

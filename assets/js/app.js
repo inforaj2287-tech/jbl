@@ -58,7 +58,17 @@ document.addEventListener('DOMContentLoaded', function () {
   var contactMsg = document.getElementById('contactMsg');
   contactForm && contactForm.addEventListener('submit', function (e) {
     e.preventDefault();
-    submitForm(contactForm, 'api/contact.php', contactMsg, 'Message sent — our team will get back to you shortly.');
+    submitForm(contactForm, contactForm.dataset.endpoint || 'api/contact.php', contactMsg, 'Message sent — our team will get back to you shortly.');
+  });
+
+  document.querySelectorAll('.site-footer').forEach(function (footer) {
+    if (footer.querySelector('.footer-social')) return;
+    var social = document.createElement('div');
+    social.className = 'footer-social';
+    social.setAttribute('aria-label', 'Social links');
+    social.innerHTML = '<a href="https://wa.me/919606976835" target="_blank" rel="noopener" aria-label="WhatsApp">WA</a><a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">f</a><a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">ig</a>';
+    var dispatch = footer.querySelector('.footer-grid > div:last-child');
+    dispatch && dispatch.appendChild(social);
   });
 
   function submitForm(form, endpoint, msgEl, successText) {

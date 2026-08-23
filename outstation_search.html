@@ -242,22 +242,23 @@
       }
 
       function openFareDetails(fare) {
-        var chargeableKm = Number(fare.chargeable_km || fare.distance_km || 0);
-        var rate = Number(fare.rate_per_km || 0);
-        var discount = Number(fare.discount != null ? fare.discount : fare.discount_amount || 0);
+        var breakdown = fare && (fare.fare_breakdown || fare.fare) ? (fare.fare_breakdown || fare.fare) : fare;
+        var chargeableKm = Number(breakdown.chargeable_km || breakdown.distance_km || fare.minimum_km || 0);
+        var rate = Number(breakdown.rate_per_km || fare.rate_per_km || 0);
+        var discount = Number(breakdown.discount != null ? breakdown.discount : fare.discount_amount || 0);
         var rows = [
-          ['Included kilometres', chargeableKm.toLocaleString('en-IN') + ' km x ' + money(rate), money(fare.distance_fare)],
+          ['Included kilometres', chargeableKm.toLocaleString('en-IN') + ' km x ' + money(rate), money(breakdown.distance_fare)],
           ['Additional fare/km beyond included kilometres', money(rate) + '/KM', ''],
-          ['Base fare', '', money(fare.base_fare)],
-          ['Driver allowance', '1 x ' + money(fare.driver_allowance), money(fare.driver_allowance)],
-          ['Toll and permit charges', '', money(Number(fare.toll_charge || 0) + Number(fare.permit_charge || 0))],
-          ['Night charge', '', money(fare.night_charge)],
+          ['Base fare', '', money(breakdown.base_fare)],
+          ['Driver allowance', (breakdown.trip_multiplier || 1) + ' x ' + money(breakdown.driver_allowance), money(breakdown.driver_allowance)],
+          ['Toll and permit charges', '', money(Number(breakdown.toll_charge || 0) + Number(breakdown.permit_charge || 0))],
+          ['Night charge', '', money(breakdown.night_charge)],
           ['Coupon discount', '', '- ' + money(discount)],
-          ['Tax', Number(fare.tax_percent || 0).toFixed(2) + '%', money(fare.tax_amount)]
+          ['Tax', Number(breakdown.tax_percent || 0).toFixed(2) + '%', money(breakdown.tax_amount)]
         ];
         document.getElementById('fareBreakdownBody').innerHTML = rows.map(function (row) {
           return '<tr><th>' + escapeHtml(row[0]) + '</th><td>' + escapeHtml(row[1]) + '</td><td>' + escapeHtml(row[2]) + '</td></tr>';
-        }).join('') + '<tr class="total-row"><th colspan="2">Total Fare</th><td>' + escapeHtml(money(fare.total)) + '</td></tr>';
+        }).join('') + '<tr class="total-row"><th colspan="2">Total Fare</th><td>' + escapeHtml(money(breakdown.total != null ? breakdown.total : fare.total)) + '</td></tr>';
         document.getElementById('fareModalSubtitle').textContent = 'Distance-based fare calculation';
         document.getElementById('fareModal').classList.add('is-open');
         document.body.classList.add('modal-open');

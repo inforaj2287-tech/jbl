@@ -34,7 +34,9 @@ class FareService
 
         return [
             'distance_km'       => round($distanceKm, 2),
+            'minimum_km'        => $minimumKm,
             'chargeable_km'     => $chargeableKm,
+            'trip_multiplier'   => $tripMultiplier,
             'rate_per_km'       => $ratePerKm,
             'base_fare'         => $baseFare,
             'distance_fare'     => $distanceFare,

@@ -123,11 +123,14 @@ try {
 
             $bucket = [
                 'car_rate_id'      => (int)$rate['id'],
+                'ac_type'          => $rate['ac_type'],
                 'fuel_type'        => $rate['fuel_type'],
                 'transmission'     => $rate['transmission'],
                 'rate_per_km'      => (float)$rate['rate_per_km'],
+                'minimum_km'       => (float)$rate['minimum_km'],
                 'discount_amount'  => (float)$rate['discount_amount'],
                 'fare'             => $fare,
+                'fare_breakdown'   => $fare,
                 'total'            => $fare['total'],
             ];
 

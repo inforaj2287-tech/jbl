@@ -99,11 +99,10 @@ h1,h2,h3,h4{ margin:0; font-family:var(--f-display); font-weight:700; letter-spa
 
 /* ---------- hero ---------- */
 .hero{
-	/* Gradient overlay on top of image. Prefer webp, fallback to svg. */
+	/* Responsive hero photo with a dark overlay for contrast. */
 	background:
 		linear-gradient(90deg, rgba(18,22,29,0.92) 0%, rgba(18,22,29,0.72) 42%, rgba(18,22,29,0.32) 68%, rgba(18,22,29,0.55) 100%),
-		url('../images/hero-woman.jpg'),
-		url('../images/hero-woman.jpg');
+		url('../images/HeroPage.jpg');
 	background-size: cover;
 	background-position: center center;
 	background-repeat: no-repeat;

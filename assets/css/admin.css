@@ -1,5 +1,7 @@
 /* Admin panel styles */
 :root{
+  --admin-display:"Barlow Condensed",sans-serif;
+  --admin-body:"Inter",sans-serif;
   --jb-yellow:#f4b400;
   --jb-ink:#12161d;
   --jb-blue:#0a91b8;
@@ -9,11 +11,14 @@
   --jb-paper:#f4f6f8;
 }
 *{box-sizing:border-box;}
-body{font-family:Arial,Helvetica,sans-serif;background:var(--jb-paper);color:#222;margin:0}
+body{font-family:var(--admin-body);font-size:16px;line-height:1.55;background:var(--jb-paper);color:#222;margin:0}
+h1,h2,h3,h4,h5{font-family:var(--admin-display);font-weight:700;line-height:1.15}
+button,input,select,textarea{font-family:var(--admin-body)}
+input,select,textarea{font-size:15px}
 a{color:var(--jb-blue)}
 
 .admin-topbar{background:#fff;padding:12px 20px;border-bottom:1px solid var(--jb-line);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
-.admin-topbar .brand{font-weight:800;color:var(--jb-ink)}
+.admin-topbar .brand{font-family:var(--admin-display);font-size:24px;font-weight:700;color:var(--jb-ink)}
 .admin-topbar .actions{display:flex;align-items:center;gap:14px}
 .admin-name{color:#555;font-size:14px}
 
@@ -24,14 +29,14 @@ a{color:var(--jb-blue)}
 .admin-sidebar a:hover{background:var(--jb-paper)}
 
 .admin-main{margin-left:240px;padding:28px;max-width:1100px}
-.admin-main h1{margin-top:0}
+.admin-main h1{font-size:clamp(32px,4vw,40px);margin-top:0}
 
 .page-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px}
 
 .cards{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px}
 .card{background:#fff;padding:16px 20px;border:1px solid var(--jb-line);border-radius:8px;min-width:160px}
 .card span{display:block;color:#777;font-size:13px;margin-bottom:6px}
-.card strong{font-size:22px;color:var(--jb-ink)}
+.card strong{font-size:22px;font-variant-numeric:tabular-nums;color:var(--jb-ink)}
 
 .quick-links{margin:18px 0}
 .quick-links .btn{margin-right:10px}
@@ -40,7 +45,7 @@ a{color:var(--jb-blue)}
 .panel h3{margin-top:0}
 
 .admin-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--jb-line)}
-.admin-table th,.admin-table td{border-bottom:1px solid var(--jb-line);padding:10px 12px;text-align:left;font-size:14px;vertical-align:middle}
+.admin-table th,.admin-table td{border-bottom:1px solid var(--jb-line);padding:10px 12px;text-align:left;font-size:15px;vertical-align:middle}
 .admin-table th{background:#fafbfc;font-weight:700;color:#444}
 .admin-table .empty{text-align:center;color:#888;padding:24px}
 .row-actions a{margin-right:10px;font-size:13px}
@@ -53,14 +58,14 @@ a{color:var(--jb-blue)}
 .badge-on{background:#e6f8ee;color:var(--jb-green)}
 .badge-off{background:#fdeeee;color:var(--jb-red)}
 
-.btn{display:inline-block;padding:9px 16px;background:var(--jb-blue);color:#fff;border-radius:6px;text-decoration:none;border:none;font-weight:700;font-size:14px;cursor:pointer}
+.btn{display:inline-block;padding:9px 16px;background:var(--jb-blue);color:#fff;border-radius:6px;text-decoration:none;border:none;font-weight:700;font-size:15px;cursor:pointer}
 .btn:hover{opacity:.92}
 .btn-outline{background:#fff;color:var(--jb-blue);border:1px solid var(--jb-blue)}
 .btn-block{width:100%;text-align:center}
 
 .stacked-form .field{margin-bottom:14px;display:flex;flex-direction:column;gap:6px}
-.stacked-form label{font-size:13px;font-weight:700;color:#444}
-.stacked-form input,.stacked-form select,.stacked-form textarea{padding:9px 10px;border:1px solid #d7dbe2;border-radius:6px;font-size:14px;font-family:inherit}
+.stacked-form label{font-size:13px;font-weight:500;color:#444}
+.stacked-form input,.stacked-form select,.stacked-form textarea{padding:9px 10px;border:1px solid #d7dbe2;border-radius:6px;font-size:15px;font-family:var(--admin-body)}
 .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px 18px}
 .form-actions{margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .inline-form{display:inline-block}
@@ -78,9 +83,9 @@ a{color:var(--jb-blue)}
 /* Login page */
 .login-body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#12161d,#1c222d)}
 .login-box{background:#fff;padding:32px;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.35);width:360px}
-.login-brand{font-weight:900;letter-spacing:.5px;color:var(--jb-ink);font-size:14px}
+.login-brand{font-family:var(--admin-display);font-weight:700;letter-spacing:.5px;color:var(--jb-ink);font-size:24px}
 .login-brand span{display:block;font-weight:400;color:#888;font-size:12px;margin-top:2px}
-.login-box h1{font-size:20px;margin:14px 0 18px}
+.login-box h1{font-size:30px;margin:14px 0 18px}
 .login-hint{margin-top:14px;font-size:12px;color:#999;text-align:center}
 
 @media (max-width:900px){

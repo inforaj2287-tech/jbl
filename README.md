@@ -41,6 +41,13 @@ start Apache, and visit `http://localhost/jbl/`.
 Upload all files via FTP. Make sure the `data/` folder is writable
 (`chmod 775 data`).
 
+## Updating the city list
+
+The pickup and drop-down city choices are available immediately in the booking
+form. For an existing MySQL database, run `add_travel_cities.sql` once so the
+new cities can also be resolved for searching and distance estimates. Fresh
+installations receive the same cities from `schema.sql`.
+
 ## Notes for going to production
 
 - Storage is flat JSON files for simplicity — swap `config.php`'s

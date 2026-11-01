@@ -115,10 +115,10 @@ input[type="date"],input[type="time"],input[type="number"],a[href^="tel:"]{ font
 
 /* ---------- hero ---------- */
 .hero{
-	/* Responsive hero photo with a dark overlay for contrast. */
+	/* Keep the photo bright while retaining enough contrast for hero content. */
 	background:
-		linear-gradient(90deg, rgba(18,22,29,0.92) 0%, rgba(18,22,29,0.72) 42%, rgba(18,22,29,0.32) 68%, rgba(18,22,29,0.55) 100%),
-		url('../images/HeroPage.jpg');
+		linear-gradient(90deg, rgba(18,22,29,0.38) 0%, rgba(18,22,29,0.24) 42%, rgba(18,22,29,0.10) 68%, rgba(18,22,29,0.25) 100%),
+		url('../images/roadlake.jpeg');
 	background-size: cover;
 	background-position: center center;
 	background-repeat: no-repeat;
@@ -399,4 +399,3 @@ input[type="date"],input[type="time"],input[type="number"],a[href^="tel:"]{ font
 	.header-cta .btn{ padding:8px 6px; font-size:11px; }
 	.nav-toggle{ width:30px; padding:0; font-size:22px; }
 }
-

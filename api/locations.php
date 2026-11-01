@@ -3,9 +3,7 @@ declare(strict_types=1);
 /**
  * api/locations.php
  * GET ?q=term       -> up to 10 autocomplete suggestions {id, label}
- * GET ?resolve=term -> best single match {id, city} used to turn the
- *                      free-text pickup/drop the user typed into a
- *                      location_id the rest of the API can use.
+ * GET ?resolve=term -> exact active city match {id, city}
  */
 header('Content-Type: application/json');
 
@@ -21,35 +19,39 @@ try {
             echo json_encode(['success' => true, 'data' => null]);
             exit;
         }
-        // exact match first, then "starts with", then "contains"
+        $aliases = [
+            'hubli' => 'Hubballi',
+            'bengaluru' => 'Bengaluru',
+            'belgaum' => 'Belagavi',
+            'belgaum airport' => 'Belagavi',
+            'belagavi airport' => 'Belagavi',
+        ];
+        $term = $aliases[strtolower($term)] ?? $term;
         $stmt = $pdo->prepare(
-            "SELECT id, city, state FROM locations
-             WHERE status = 1 AND city = ?
-             LIMIT 1"
+            'SELECT id, city, state FROM locations
+             WHERE status = 1 AND LOWER(city) = LOWER(?)
+             LIMIT 1'
         );
         $stmt->execute([$term]);
         $row = $stmt->fetch();
 
-        if (!$row) {
-            $stmt = $pdo->prepare(
-                "SELECT id, city, state FROM locations
-                 WHERE status = 1 AND city LIKE ?
-                 ORDER BY LENGTH(city) ASC LIMIT 1"
-            );
-            $stmt->execute([$term . '%']);
-            $row = $stmt->fetch();
-        }
-        if (!$row) {
-            $stmt = $pdo->prepare(
-                "SELECT id, city, state FROM locations
-                 WHERE status = 1 AND city LIKE ?
-                 ORDER BY LENGTH(city) ASC LIMIT 1"
-            );
-            $stmt->execute(['%' . $term . '%']);
-            $row = $stmt->fetch();
-        }
-
         echo json_encode(['success' => true, 'data' => $row ?: null]);
+        exit;
+    }
+
+    if (isset($_GET['list'])) {
+        $stmt = $pdo->query(
+            'SELECT id, city, state FROM locations
+             WHERE status = 1
+             ORDER BY city ASC'
+        );
+        $out = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $label = $row['city'];
+            if (!empty($row['state'])) $label .= ', ' . $row['state'];
+            $out[] = ['id' => (int)$row['id'], 'city' => $row['city'], 'label' => $label];
+        }
+        echo json_encode(['success' => true, 'data' => $out]);
         exit;
     }
 
@@ -59,9 +61,33 @@ try {
         exit;
     }
 
+    $aliases = [
+        'hubli' => 'Hubballi',
+        'bengaluru' => 'Bengaluru',
+        'belgaum' => 'Belagavi',
+    ];
+    $searchTerm = $aliases[strtolower($q)] ?? $q;
     $stmt = $pdo->prepare('SELECT id, city, state, country FROM locations WHERE city LIKE ? AND status = 1 ORDER BY city ASC LIMIT 10');
-    $stmt->execute([$q . '%']);
+    $stmt->execute([$searchTerm . '%']);
     $rows = $stmt->fetchAll();
+
+    if (count($rows) < 10 && strlen($searchTerm) >= 4) {
+        $knownCities = array_column($rows, 'city');
+        $stmt = $pdo->query('SELECT id, city, state, country FROM locations WHERE status = 1 ORDER BY city ASC');
+        while ($row = $stmt->fetch()) {
+            if (in_array($row['city'], $knownCities, true)) continue;
+            $distance = levenshtein(strtolower($searchTerm), strtolower((string)$row['city']));
+            $allowedDistance = max(1, (int)floor(max(strlen($searchTerm), strlen((string)$row['city'])) * 0.2));
+            if ($distance <= $allowedDistance) {
+                $row['_match_distance'] = $distance;
+                $rows[] = $row;
+            }
+        }
+        usort($rows, static function (array $a, array $b): int {
+            return ($a['_match_distance'] ?? 0) <=> ($b['_match_distance'] ?? 0);
+        });
+        $rows = array_slice($rows, 0, 10);
+    }
 
     $out = [];
     foreach ($rows as $r) {

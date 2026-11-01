@@ -209,16 +209,44 @@ INSERT INTO locations (city, state, latitude, longitude) VALUES
 ('Gokak','Karnataka',16.1667,74.8333),
 ('Nipani','Karnataka',16.4000,74.3833),
 ('Khanapur','Karnataka',15.6333,74.5000),
-('Bangalore','Karnataka',12.9716,77.5946),
-('Mysore','Karnataka',12.2958,76.6394),
-('Mangalore','Karnataka',12.9141,74.8560),
+('Bengaluru','Karnataka',12.9716,77.5946),
+('Mysuru','Karnataka',12.2958,76.6394),
+('Mangaluru','Karnataka',12.9141,74.8560),
 ('Chennai','Tamil Nadu',13.0827,80.2707),
 ('Hyderabad','Telangana',17.3850,78.4867),
 ('Pune','Maharashtra',18.5204,73.8567),
 ('Mumbai','Maharashtra',19.0760,72.8777),
 ('Goa','Goa',15.2993,74.1240),
 ('Coimbatore','Tamil Nadu',11.0168,76.9558),
-('Kochi','Kerala',9.9312,76.2673);
+('Kochi','Kerala',9.9312,76.2673),
+('Bengaluru International Airport','Karnataka',13.1986,77.7066),
+('Delhi','Delhi',28.6139,77.2090),
+('Jaipur','Rajasthan',26.9124,75.7873),
+('Kolkata','West Bengal',22.5726,88.3639),
+('Visakhapatnam','Andhra Pradesh',17.6868,83.2185),
+('Chandigarh','Chandigarh',30.7333,76.7794),
+('Ahmedabad','Gujarat',23.0225,72.5714),
+('Surat','Gujarat',21.1702,72.8311),
+('Lucknow','Uttar Pradesh',26.8467,80.9462),
+('Indore','Madhya Pradesh',22.7196,75.8577),
+('Nagpur','Maharashtra',21.1458,79.0882),
+('Thiruvananthapuram','Kerala',8.5241,76.9366),
+('Gandhinagar','Gujarat',23.2156,72.6369),
+('Rajkot','Gujarat',22.3039,70.8022),
+('Madurai','Tamil Nadu',9.9252,78.1198),
+('Shivamogga','Karnataka',13.9299,75.5681),
+('Kolar','Karnataka',13.1367,78.1292),
+('Raichur','Karnataka',16.2120,77.3439),
+('Bidar','Karnataka',17.9133,77.5301),
+('Kalaburagi','Karnataka',17.3297,76.8343),
+('Vijayanagara','Karnataka',15.2695,76.3871),
+('Hassan','Karnataka',13.0068,76.0996),
+('Davangere','Karnataka',14.4644,75.9218),
+('Tumakuru','Karnataka',13.3379,77.1173),
+('Chitradurga','Karnataka',14.2251,76.3980),
+('Bagalkot','Karnataka',16.1691,75.6615),
+('Gadag','Karnataka',15.4167,75.6167),
+('Uttara Kannada','Karnataka',14.8136,74.1297);
 
 -- A couple of known/verified road distances (override the
 -- straight-line estimate for accuracy on the most common routes).
@@ -226,9 +254,9 @@ INSERT INTO distances (from_location_id, to_location_id, distance_km)
 SELECT a.id, b.id, d.km FROM
 (SELECT 'Belagavi' f, 'Hubballi' t, 105.00 km
  UNION ALL SELECT 'Belagavi','Goa',225.00
- UNION ALL SELECT 'Belagavi','Bangalore',500.00
+ UNION ALL SELECT 'Belagavi','Bengaluru',500.00
  UNION ALL SELECT 'Belagavi','Pune',335.00
- UNION ALL SELECT 'Hubballi','Bangalore',410.00) d
+ UNION ALL SELECT 'Hubballi','Bengaluru',410.00) d
 JOIN locations a ON a.city = d.f
 JOIN locations b ON b.city = d.t;
 

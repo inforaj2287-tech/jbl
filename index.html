@@ -66,11 +66,15 @@
 
         <div class="field">
           <label for="pickup">Pickup location</label>
-          <input type="text" id="pickup" name="pickup" placeholder="e.g. Tilakwadi, Shahpur" required>
+          <select id="pickup" name="pickup" required>
+            <option value="">Loading cities…</option>
+          </select>
         </div>
         <div class="field">
           <label for="drop">Drop location</label>
-          <input type="text" id="drop" name="drop" placeholder="e.g. Belagavi Airport or Gokak" required>
+          <select id="drop" name="drop" required>
+            <option value="">Loading cities…</option>
+          </select>
         </div>
         <div class="field-row">
           <div class="field">
@@ -157,7 +161,7 @@
           <h3>Airport Pickup</h3>
           <p>We track your flight and adjust pickup time automatically — no charge for delays inside the free-wait window.</p>
           <div class="price">₹574 flat · up to 25km</div>
-          <a class="btn btn-ghost" href="#book">Book a Car →</a>
+          <a class="btn btn-ghost" href="outstation_search.html?trip=airport&amp;pickup=Belagavi%20Airport&amp;drop=Belagavi">Book a Car →</a>
         </div>
       </div>
       <div class="route-card">
@@ -166,7 +170,7 @@
           <h3>Airport Drop</h3>
           <p>Door-to-terminal drop with a buffer built into every quote, so you're never cutting boarding time close.</p>
           <div class="price">₹674 flat · up to 25km</div>
-          <a class="btn btn-ghost" href="#book">Book a Car →</a>
+          <a class="btn btn-ghost" href="outstation_search.html?trip=airport&amp;pickup=Belagavi&amp;drop=Belagavi%20Airport">Book a Car →</a>
         </div>
       </div>
       <div class="route-card">
@@ -175,7 +179,7 @@
           <h3>Airport Round Trip</h3>
           <p>Book pickup and drop together and lock in a lower combined rate than two one-way trips.</p>
           <div class="price">₹1295 flat · round trip</div>
-          <a class="btn btn-ghost" href="#book">Book a Car →</a>
+          <a class="btn btn-ghost" href="outstation_search.html?trip=airport&amp;journey=round_trip&amp;pickup=Belagavi&amp;drop=Belagavi%20Airport">Book a Car →</a>
         </div>
       </div>
     </div>
@@ -379,7 +383,7 @@
       </div>
       <div>
         <h5>Company</h5>
-        <ul><li><a href="pages/about.html">About Us</a></li><li><a href="pages/contact.html">Contact Us</a></li></ul>
+        <ul><li><a href="pages/about.html">About Us</a></li><li><a href="pages/contact.html">Contact Us</a></li><li><a href="admin/login.php">Admin Login</a></li></ul>
       </div>
       <div>
         <h5>Services</h5>

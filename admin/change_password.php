@@ -1,34 +1,45 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__ . '/../config/bootstrap.php';
-// Simplified password storage: store single hashed password in data/admin_password.hash
+require_once __DIR__ . '/includes/auth.php';
+require_admin();
+require_once __DIR__ . '/../config/Database.php';
+
+use Config\Database;
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo 'Method not allowed';
+    header('Location: dashboard.php');
     exit;
 }
 
-$pass = $_POST['password'] ?? '';
-$confirm = $_POST['confirm_password'] ?? '';
-if ($pass === '' || $pass !== $confirm) {
-    http_response_code(400);
-    echo 'Passwords must match and not be empty.';
-    exit;
-}
-if (strlen($pass) < 6) {
-    http_response_code(400);
-    echo 'Password must be at least 6 characters.';
+$currentPassword = (string)($_POST['current_password'] ?? '');
+$password = (string)($_POST['password'] ?? '');
+$confirmPassword = (string)($_POST['confirm_password'] ?? '');
+
+if ($password === '' || $password !== $confirmPassword || strlen($password) < 6) {
+    header('Location: dashboard.php?msg=pass_invalid');
     exit;
 }
 
-ensure_data_dir();
-$hash = password_hash($pass, PASSWORD_DEFAULT);
-$file = DATA_DIR . '/admin_password.hash';
-if (file_put_contents($file, $hash, LOCK_EX) === false) {
-    http_response_code(500);
-    echo 'Failed to save password.';
+try {
+    $pdo = Database::getConnection();
+    $stmt = $pdo->prepare('SELECT password_hash FROM admins WHERE id = ? LIMIT 1');
+    $stmt->execute([$_SESSION['admin_id']]);
+    $admin = $stmt->fetch();
+
+    if (!$admin || !password_verify($currentPassword, $admin['password_hash'])) {
+        header('Location: dashboard.php?msg=pass_wrong');
+        exit;
+    }
+
+    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+    $stmt = $pdo->prepare('UPDATE admins SET password_hash = ? WHERE id = ?');
+    $stmt->execute([$passwordHash, $_SESSION['admin_id']]);
+    session_regenerate_id(true);
+
+    header('Location: dashboard.php?msg=pass_saved');
+    exit;
+} catch (Exception $e) {
+    error_log('Admin password update failed: ' . $e->getMessage());
+    header('Location: dashboard.php?msg=pass_error');
     exit;
 }
-
-header('Location: dashboard.php?msg=pass_saved');
-exit;

@@ -10,6 +10,8 @@ if (admin_logged_in()) {
 }
 
 $error = '';
+$adminBase = admin_base_url();
+$siteRoot = preg_replace('#admin/$#', '', $adminBase) ?: '/';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mobile = trim((string)($_POST['mobile'] ?? ''));
@@ -25,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $admin = $stmt->fetch();
 
             if ($admin && password_verify($password, $admin['password_hash'])) {
+                session_regenerate_id(true);
                 $_SESSION['admin_id'] = (int)$admin['id'];
                 $_SESSION['admin_name'] = $admin['name'];
                 header('Location: dashboard.php');
@@ -43,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Admin Login — JB Travels</title>
-  <link rel="stylesheet" href="../assets/css/admin.css">
+  <link rel="stylesheet" href="<?= htmlspecialchars($siteRoot, ENT_QUOTES, 'UTF-8') ?>assets/css/admin.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -53,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="login-brand">JB TRAVELS<span>Admin Panel</span></div>
     <h1>Admin Login</h1>
     <?php if ($error): ?><div class="err"><?= htmlspecialchars($error) ?></div><?php endif; ?>
-    <form method="post" autocomplete="off">
+    <form method="post" autocomplete="off" class="stacked-form">
       <div class="field">
         <label for="mobile">Mobile number</label>
         <input type="tel" id="mobile" name="mobile" pattern="[0-9]{10}" maxlength="10" placeholder="10-digit mobile number" required autofocus>
@@ -64,7 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
       <button type="submit" class="btn btn-block">Login</button>
     </form>
-    <p class="login-hint">Default demo login: 9999999999 / admin123</p>
   </div>
 </body>
 </html>

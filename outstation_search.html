@@ -127,7 +127,7 @@
         <thead><tr><th>Description</th><th>Information</th><th>Amount</th></tr></thead>
         <tbody id="fareBreakdownBody"></tbody>
       </table>
-      <div class="fare-terms"><strong>Extra charges and terms:</strong><br>
+      <div class="fare-terms" id="fareTerms"><strong>Extra charges and terms:</strong><br>
         Toll, parking, interstate taxes and green tax apply as actuals.<br>
         Distance beyond the included kilometres is charged at the displayed rate per kilometre.<br>
         Night allowance may apply between 10:00 PM and 6:00 AM.
@@ -152,6 +152,7 @@
       var date = params.get('date') || new Date().toISOString().slice(0, 10);
       var time = params.get('time') || '09:00';
       var trip = params.get('trip') || 'outstation';
+      var journey = params.get('journey') || 'one_way';
 
       document.getElementById('routeTitle').innerHTML =
         escapeHtml(pickup) + ' <span style="color:var(--ink-soft); font-weight:400; font-size:15px;">&nbsp; &gt; &nbsp;' + escapeHtml(drop) + '</span>';
@@ -163,6 +164,7 @@
       document.getElementById('modifySearch').addEventListener('click', function () {
         var modifyParams = new URLSearchParams({
           trip: trip,
+          journey: journey,
           pickup: pickup,
           drop: drop,
           date: date,
@@ -173,7 +175,7 @@
 
       var payload = {
         service_type: trip.toUpperCase(),
-        trip_type: 'ONE_WAY',
+        trip_type: journey.toUpperCase(),
         pickup: pickup,
         drop: drop,
         pickup_date: date,
@@ -257,23 +259,34 @@
 
       function openFareDetails(fare) {
         var breakdown = fare && (fare.fare_breakdown || fare.fare) ? (fare.fare_breakdown || fare.fare) : fare;
-        var chargeableKm = Number(breakdown.chargeable_km || breakdown.distance_km || fare.minimum_km || 0);
-        var rate = Number(breakdown.rate_per_km || fare.rate_per_km || 0);
-        var discount = Number(breakdown.discount != null ? breakdown.discount : fare.discount_amount || 0);
-        var rows = [
-          ['Included kilometres', chargeableKm.toLocaleString('en-IN') + ' km x ' + money(rate), money(breakdown.distance_fare)],
-          ['Additional fare/km beyond included kilometres', money(rate) + '/KM', ''],
-          ['Base fare', '', money(breakdown.base_fare)],
-          ['Driver allowance', (breakdown.trip_multiplier || 1) + ' x ' + money(breakdown.driver_allowance), money(breakdown.driver_allowance)],
-          ['Toll and permit charges', '', money(Number(breakdown.toll_charge || 0) + Number(breakdown.permit_charge || 0))],
-          ['Night charge', '', money(breakdown.night_charge)],
-          ['Coupon discount', '', '- ' + money(discount)],
-          ['Tax', Number(breakdown.tax_percent || 0).toFixed(2) + '%', money(breakdown.tax_amount)]
-        ];
+        var fixedFare = Boolean(fare && fare.fixed_fare);
+        var rows;
+        if (fixedFare) {
+          rows = [['Fixed airport transfer fare', 'Flat fare', money(breakdown.total)]];
+        } else {
+          var chargeableKm = Number(breakdown.chargeable_km || breakdown.distance_km || fare.minimum_km || 0);
+          var rate = Number(breakdown.rate_per_km || fare.rate_per_km || 0);
+          var discount = Number(breakdown.discount != null ? breakdown.discount : fare.discount_amount || 0);
+          rows = [
+            ['Included kilometres', chargeableKm.toLocaleString('en-IN') + ' km x ' + money(rate), money(breakdown.distance_fare)],
+            ['Additional fare/km beyond included kilometres', money(rate) + '/KM', ''],
+            ['Base fare', '', money(breakdown.base_fare)],
+            ['Driver allowance', (breakdown.trip_multiplier || 1) + ' x ' + money(breakdown.driver_allowance), money(breakdown.driver_allowance)],
+            ['Toll and permit charges', '', money(Number(breakdown.toll_charge || 0) + Number(breakdown.permit_charge || 0))],
+            ['Night charge', '', money(breakdown.night_charge)],
+            ['Coupon discount', '', '- ' + money(discount)],
+            ['Tax', Number(breakdown.tax_percent || 0).toFixed(2) + '%', money(breakdown.tax_amount)]
+          ];
+        }
         document.getElementById('fareBreakdownBody').innerHTML = rows.map(function (row) {
           return '<tr><th>' + escapeHtml(row[0]) + '</th><td>' + escapeHtml(row[1]) + '</td><td>' + escapeHtml(row[2]) + '</td></tr>';
         }).join('') + '<tr class="total-row"><th colspan="2">Total Fare</th><td>' + escapeHtml(money(breakdown.total != null ? breakdown.total : fare.total)) + '</td></tr>';
-        document.getElementById('fareModalSubtitle').textContent = 'Distance-based fare calculation';
+        document.getElementById('fareModalSubtitle').textContent = fixedFare
+          ? 'Fixed airport transfer fare'
+          : 'Distance-based fare calculation';
+        document.getElementById('fareTerms').innerHTML = fixedFare
+          ? '<strong>Extra charges and terms:</strong><br>Toll, parking and applicable airport charges may apply as actuals.'
+          : '<strong>Extra charges and terms:</strong><br>Toll, parking, interstate taxes and green tax apply as actuals.<br>Distance beyond the included kilometres is charged at the displayed rate per kilometre.<br>Night allowance may apply between 10:00 PM and 6:00 AM.';
         document.getElementById('fareModal').classList.add('is-open');
         document.body.classList.add('modal-open');
       }
@@ -307,7 +320,7 @@
             'Drop: ' + drop,
             'Pickup Date: ' + date,
             'Pickup Time: ' + time,
-            'Trip Type: ' + trip,
+            'Trip Type: ' + journey,
             'Distance: ' + Number(fareBreakdown.distance_km || 0).toLocaleString('en-IN') + ' km',
             'Estimated Fare: ₹' + Number(fareBreakdown.total != null ? fareBreakdown.total : fare.total || 0).toLocaleString('en-IN'),
             '',

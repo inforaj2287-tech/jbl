@@ -8,14 +8,18 @@ if (!in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true)) {
     exit;
 }
 
+require_once __DIR__ . '/../config/Environment.php';
+Config\Environment::load();
+
 header('Content-Type: application/json');
 
 $host = getenv('DB_HOST') ?: '127.0.0.1';
+$port = getenv('DB_PORT') ?: '3306';
 $db   = getenv('DB_NAME') ?: 'jbtravels';
 $user = getenv('DB_USER') ?: 'root';
 $pass = getenv('DB_PASSWORD') ?: '';
 
-$dsn = "mysql:host={$host};dbname={$db};charset=utf8mb4";
+$dsn = "mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4";
 try {
     $pdo = new PDO($dsn, $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     echo json_encode(['success' => true, 'message' => 'Connected', 'host' => $host, 'db' => $db, 'user' => $user]);

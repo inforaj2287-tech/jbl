@@ -8,9 +8,8 @@ require_once __DIR__ . '/Environment.php';
 Environment::load();
 
 /**
- * Simple PDO singleton. Reads connection settings from environment
- * variables (falls back to sensible local-dev defaults) so the same
- * code works on localhost, XAMPP, or a shared host.
+ * PDO singleton. Reads credentials from environment variables or an
+ * untracked database.local.php file for shared hosts.
  */
 class Database
 {
@@ -19,13 +18,25 @@ class Database
     public static function getConnection(): \PDO
     {
         if (self::$pdo === null) {
-            $host = getenv('DB_HOST') ?: '127.0.0.1';
-            $port = getenv('DB_PORT') ?: '3306';
-            $db   = getenv('DB_NAME') ?: 'jbtravels';
-            $user = getenv('DB_USER') ?: 'root';
-            $pass = getenv('DB_PASSWORD') ?: '';
+            $localConfigFile = __DIR__ . '/database.local.php';
+            $localConfig = is_file($localConfigFile) ? require $localConfigFile : [];
+            if (!is_array($localConfig)) {
+                throw new \RuntimeException('config/database.local.php must return an array.');
+            }
 
-            $dsn = "mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4";
+            $host = getenv('DB_HOST') ?: ($localConfig['host'] ?? '127.0.0.1');
+            $db   = getenv('DB_NAME') ?: ($localConfig['database'] ?? 'jbtravels');
+            $user = getenv('DB_USER') ?: ($localConfig['username'] ?? 'root');
+            $pass = getenv('DB_PASSWORD') ?: ($localConfig['password'] ?? '');
+            $port = getenv('DB_PORT') ?: ($localConfig['port'] ?? '');
+
+            $dsn = "mysql:host={$host};dbname={$db};charset=utf8mb4";
+            if ($port !== '') {
+                if (!ctype_digit((string)$port)) {
+                    throw new \RuntimeException('DB_PORT must be a number.');
+                }
+                $dsn .= ';port=' . (int)$port;
+            }
             $opts = [
                 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
                 \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,

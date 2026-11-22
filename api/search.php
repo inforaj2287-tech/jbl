@@ -23,11 +23,16 @@ if (!is_array($input)) {
 }
 
 $serviceType = strtoupper(trim((string)($input['service_type'] ?? 'OUTSTATION')));
-$tripType    = strtoupper(trim((string)($input['trip_type'] ?? 'ONE_WAY')));
+$tripType    = strtoupper(str_replace([' ', '-'], '_', trim((string)($input['trip_type'] ?? 'ONE_WAY'))));
 $pickupDate  = trim((string)($input['pickup_date'] ?? ''));
 $pickupTime  = trim((string)($input['pickup_time'] ?? ''));
+$returnDate  = trim((string)($input['return_date'] ?? ''));
+$returnTime  = trim((string)($input['return_time'] ?? ''));
 
-if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $pickupDate) || !strtotime($pickupDate)) {
+$pickupDateValue = DateTime::createFromFormat('!Y-m-d', $pickupDate);
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $pickupDate)
+    || !$pickupDateValue
+    || $pickupDateValue->format('Y-m-d') !== $pickupDate) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'A valid pickup date is required.']);
     exit;
@@ -44,7 +49,43 @@ if (!preg_match('/^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/', $pickupTime)) {
 }
 
 if (!in_array($serviceType, ['LOCAL', 'OUTSTATION', 'AIRPORT'], true)) {
-    $serviceType = 'OUTSTATION';
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'A valid service type is required.']);
+    exit;
+}
+if (!in_array($tripType, ['ONE_WAY', 'ROUND_TRIP'], true)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'A valid trip type is required.']);
+    exit;
+}
+if ($serviceType === 'LOCAL' && $tripType === 'ROUND_TRIP') {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Round trips are available for outstation and airport services only.']);
+    exit;
+}
+if ($tripType === 'ROUND_TRIP') {
+    $returnDateValue = DateTime::createFromFormat('!Y-m-d', $returnDate);
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $returnDate)
+        || !$returnDateValue
+        || $returnDateValue->format('Y-m-d') !== $returnDate
+        || $returnDate < $pickupDate) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'A valid return date on or after the pickup date is required.']);
+        exit;
+    }
+    if (!preg_match('/^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/', $returnTime)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'A valid return time is required.']);
+        exit;
+    }
+    if ($returnDate === $pickupDate
+        && strtotime($returnDate . ' ' . $returnTime) <= strtotime($pickupDate . ' ' . $pickupTime)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Return time must be after pickup time for a same-day return.']);
+        exit;
+    }
+} else {
+    $returnDate = $pickupDate;
 }
 
 try {
@@ -76,9 +117,10 @@ try {
     }
 
     // ---- Distance, driven entirely by km (requirement: price by km) ----
-    $distance = ($serviceType === 'LOCAL' || ($serviceType === 'AIRPORT' && $fromId === $toId))
-        ? 0.0
-        : DistanceService::getDistanceKm($fromId, $toId);
+    $distanceInfo = ($serviceType === 'LOCAL' || ($serviceType === 'AIRPORT' && $fromId === $toId))
+        ? ['distance_km' => 0.0, 'source' => 'same_location']
+        : DistanceService::getDistanceDetails($fromId, $toId);
+    $distance = $distanceInfo['distance_km'];
 
     // ---- Active cars + their rates for this service type ----------
         $carsStmt = $pdo->prepare("SELECT id, name, brand, model, category, seats, luggage_capacity, image, description
@@ -88,33 +130,21 @@ try {
                             SELECT 1 FROM bookings b
                             WHERE b.car_id = cars.id
                                 AND b.booking_status IN ('CONFIRMED','ASSIGNED','DRIVER_ASSIGNED','ON_TRIP')
-                                AND ? BETWEEN b.pickup_date AND COALESCE(b.return_date, b.pickup_date)
+                                AND COALESCE(b.return_date, b.pickup_date) >= ?
+                                AND b.pickup_date <= ?
                     )
                 ORDER BY seats ASC, name ASC");
-        $carsStmt->execute([$pickupDate]);
+        $carsStmt->execute([$pickupDate, $returnDate]);
     $cars = $carsStmt->fetchAll();
 
     $rateStmt = $pdo->prepare('SELECT * FROM car_rates WHERE car_id = ? AND service_type = ? AND status = 1');
-
-    $fixedAirportFare = null;
-    if ($serviceType === 'AIRPORT') {
-        $pickupIsAirport = stripos((string)($input['pickup'] ?? ''), 'airport') !== false;
-        $dropIsAirport = stripos((string)($input['drop'] ?? ''), 'airport') !== false;
-        if ($tripType === 'ROUND_TRIP' && ($pickupIsAirport || $dropIsAirport)) {
-            $fixedAirportFare = 1295.0;
-        } elseif ($pickupIsAirport) {
-            $fixedAirportFare = 574.0;
-        } elseif ($dropIsAirport) {
-            $fixedAirportFare = 674.0;
-        }
-    }
 
     $results = [];
     foreach ($cars as $c) {
         $rateStmt->execute([$c['id'], $serviceType]);
         $rates = $rateStmt->fetchAll();
 
-        if (!$rates && $fixedAirportFare === null) {
+        if (!$rates) {
             continue; // this car has no pricing at all for this service
         }
 
@@ -130,13 +160,6 @@ try {
             'non_ac'      => null,
             'ac'          => null,
         ];
-
-        if ($fixedAirportFare !== null) {
-            $entry['non_ac'] = airport_fare_bucket($fixedAirportFare, 'NON_AC');
-            $entry['ac'] = airport_fare_bucket($fixedAirportFare, 'AC');
-            $results[] = $entry;
-            continue;
-        }
 
         foreach ($rates as $rate) {
             $fare = $tripType === 'ROUND_TRIP'
@@ -171,12 +194,17 @@ try {
         'message'     => 'Cars found successfully',
         'service_type'=> $serviceType,
         'trip_type'   => $tripType,
+        'distance_source' => $distanceInfo['source'],
+        'one_way_distance_km' => $distance,
         'distance_km' => $distance,
         'from'        => $fromLoc,
         'to'          => $toLoc,
         'cars'        => $results,
     ]);
 
+} catch (DistanceUnavailableException $e) {
+    http_response_code(422);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 } catch (Exception $e) {
     error_log('search.php error: ' . $e->getMessage());
     http_response_code(500);
@@ -210,32 +238,4 @@ function fetch_location(\PDO $pdo, int $id): ?array
     $stmt->execute([$id]);
     $row = $stmt->fetch();
     return $row ?: null;
-}
-
-function airport_fare_bucket(float $amount, string $acType): array
-{
-    $fare = [
-        'distance_km' => 0,
-        'chargeable_km' => 0,
-        'rate_per_km' => 0,
-        'distance_fare' => 0,
-        'base_fare' => $amount,
-        'driver_allowance' => 0,
-        'toll_charge' => 0,
-        'permit_charge' => 0,
-        'night_charge' => 0,
-        'discount' => 0,
-        'tax_percent' => 0,
-        'tax_amount' => 0,
-        'total' => $amount,
-    ];
-
-    return [
-        'ac_type' => $acType,
-        'discount_amount' => 0,
-        'fixed_fare' => true,
-        'fare' => $fare,
-        'fare_breakdown' => $fare,
-        'total' => $amount,
-    ];
 }

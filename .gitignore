@@ -1,3 +1,1 @@
-.env
-.env.*
-!.env.example
+/config/database.local.php

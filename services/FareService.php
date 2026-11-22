@@ -11,12 +11,14 @@ class FareService
 {
     public static function calculateFare(float $distanceKm, array $rateRow, int $tripMultiplier = 1): array
     {
-        $distanceKm = $distanceKm * $tripMultiplier;
+        $oneWayDistanceKm = max(0.0, $distanceKm);
+        $tripDistanceKm = $oneWayDistanceKm * $tripMultiplier;
 
         $ratePerKm       = (float)($rateRow['rate_per_km'] ?? 0);
         $minimumKm       = (float)($rateRow['minimum_km'] ?? 0);
         $baseFare        = (float)($rateRow['base_fare'] ?? 0);
-        $driverAllowance = (float)($rateRow['driver_allowance'] ?? 0);
+        $driverAllowancePerTrip = (float)($rateRow['driver_allowance'] ?? 0);
+        $driverAllowance = $driverAllowancePerTrip * $tripMultiplier;
         $night           = (float)($rateRow['night_charge'] ?? 0);
         $toll            = (float)($rateRow['toll_charge'] ?? 0);
         $permit          = (float)($rateRow['permit_charge'] ?? 0);
@@ -24,7 +26,7 @@ class FareService
         $taxPercent      = (float)($rateRow['tax_percent'] ?? 0);
 
         // The core "price by kilometers" calculation.
-        $chargeableKm = max($distanceKm, $minimumKm);
+        $chargeableKm = max($tripDistanceKm, $minimumKm);
         $distanceFare = round($chargeableKm * $ratePerKm, 2);
 
         $subtotal = $baseFare + $distanceFare + $driverAllowance + $toll + $permit + $night;
@@ -33,13 +35,15 @@ class FareService
         if ($total < 0) $total = 0.0;
 
         return [
-            'distance_km'       => round($distanceKm, 2),
+            'one_way_distance_km' => round($oneWayDistanceKm, 2),
+            'distance_km'       => round($tripDistanceKm, 2),
             'minimum_km'        => $minimumKm,
             'chargeable_km'     => $chargeableKm,
             'trip_multiplier'   => $tripMultiplier,
             'rate_per_km'       => $ratePerKm,
             'base_fare'         => $baseFare,
             'distance_fare'     => $distanceFare,
+            'driver_allowance_per_trip' => $driverAllowancePerTrip,
             'driver_allowance'  => $driverAllowance,
             'toll_charge'       => $toll,
             'permit_charge'     => $permit,

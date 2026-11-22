@@ -15,7 +15,7 @@
     .results-top{ display:flex;justify-content:space-between;align-items:center;padding:10px 0 }
     .results-top h2{ font-size:clamp(28px,4vw,36px); text-transform:none; }
     .modify-btn{ background:var(--yellow);border-radius:24px;padding:10px 22px;color:var(--ink);font-weight:700;font-size:15px;border:none;cursor:pointer; }
-    .results-meta{ display:flex;gap:40px;color:var(--ink-soft);font-size:14px;padding:14px 0 4px;flex-wrap:wrap; }
+    .results-meta{ display:flex;gap:22px 40px;color:var(--ink-soft);font-size:14px;padding:14px 0 4px;flex-wrap:wrap; }
     .results-meta strong{ display:block;color:var(--ink);font-size:15px;font-variant-numeric:tabular-nums;margin-top:2px; }
 
     .car-table-head{ display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:0; margin-bottom:8px; }
@@ -72,8 +72,8 @@
       <nav class="nav-links" id="navLinks">
         <a href="index.html#top">Home</a>
         <a href="index.html#airport">Airport</a>
-        <a href="index.html#outstation">Outstation</a>
-        <a href="index.html#fleet">Local</a>
+        <a href="index.html#destinations">Outstation</a>
+        <a href="index.html#services">Local</a>
       </nav>
       <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
     </div>
@@ -93,6 +93,11 @@
         <div>Drop Location<strong id="metaDrop">—</strong></div>
         <div>Time<strong id="metaTime">—</strong></div>
         <div>Pickup Date<strong id="metaDate">—</strong></div>
+        <div>Trip Type<strong id="metaJourney">—</strong></div>
+        <div>One-Way Distance<strong id="metaOneWayDistance">Calculating…</strong></div>
+        <div id="roundTripDistanceMeta" hidden>Round-Trip Distance<strong id="metaRoundTripDistance">—</strong></div>
+        <div id="returnDateMeta" hidden>Return Date<strong id="metaReturnDate">—</strong></div>
+        <div id="returnTimeMeta" hidden>Return Time<strong id="metaReturnTime">—</strong></div>
       </div>
     </div>
 
@@ -129,7 +134,7 @@
       </table>
       <div class="fare-terms" id="fareTerms"><strong>Extra charges and terms:</strong><br>
         Toll, parking, interstate taxes and green tax apply as actuals.<br>
-        Distance beyond the included kilometres is charged at the displayed rate per kilometre.<br>
+        The distance fare uses the billable kilometres and the selected car's rate per kilometre.<br>
         Night allowance may apply between 10:00 PM and 6:00 AM.
       </div>
     </div>
@@ -152,7 +157,21 @@
       var date = params.get('date') || new Date().toISOString().slice(0, 10);
       var time = params.get('time') || '09:00';
       var trip = params.get('trip') || 'outstation';
-      var journey = params.get('journey') || 'one_way';
+      var journeyValue = (params.get('journey') || 'one_way').toLowerCase().replace(/[\s-]+/g, '_');
+      var isRoundTrip = journeyValue === 'round_trip';
+      var journey = isRoundTrip ? 'round_trip' : 'one_way';
+      var journeyLabel = isRoundTrip ? 'Round Trip' : 'One Way';
+      var returnDate = params.get('return_date') || '';
+      var returnTime = params.get('return_time') || '';
+      var bookingContact = {};
+      try {
+        bookingContact = JSON.parse(sessionStorage.getItem('jblBookingContact') || '{}');
+      } catch (error) {
+        console.error('Unable to restore passenger details for booking.', error);
+      }
+      var passengerName = bookingContact.name || '';
+      var passengerPhone = bookingContact.phone || '';
+      var passengerEmail = bookingContact.email || '';
 
       document.getElementById('routeTitle').innerHTML =
         escapeHtml(pickup) + ' <span style="color:var(--ink-soft); font-weight:400; font-size:15px;">&nbsp; &gt; &nbsp;' + escapeHtml(drop) + '</span>';
@@ -160,6 +179,15 @@
       document.getElementById('metaDrop').textContent = drop;
       document.getElementById('metaTime').textContent = time;
       document.getElementById('metaDate').textContent = date;
+      document.getElementById('metaJourney').textContent = journeyLabel;
+      if (isRoundTrip) {
+        document.getElementById('roundTripDistanceMeta').hidden = false;
+        document.getElementById('metaRoundTripDistance').textContent = 'Calculating…';
+        document.getElementById('returnDateMeta').hidden = false;
+        document.getElementById('metaReturnDate').textContent = returnDate;
+        document.getElementById('returnTimeMeta').hidden = false;
+        document.getElementById('metaReturnTime').textContent = returnTime;
+      }
 
       document.getElementById('modifySearch').addEventListener('click', function () {
         var modifyParams = new URLSearchParams({
@@ -168,18 +196,22 @@
           pickup: pickup,
           drop: drop,
           date: date,
-          time: time
+          time: time,
+          return_date: returnDate,
+          return_time: returnTime
         });
         window.location.href = 'index.html?' + modifyParams.toString() + '#book';
       });
 
       var payload = {
         service_type: trip.toUpperCase(),
-        trip_type: journey.toUpperCase(),
+        trip_type: isRoundTrip ? 'ROUND_TRIP' : 'ONE_WAY',
         pickup: pickup,
         drop: drop,
         pickup_date: date,
-        pickup_time: time
+        pickup_time: time,
+        return_date: returnDate,
+        return_time: returnTime
       };
 
       fetch('api/search.php', {
@@ -190,11 +222,18 @@
         .then(function (res) { return res.json(); })
         .then(function (json) {
           if (!json.success) { return showMessage(json.message || 'No cars found.'); }
+          var oneWayDistance = Number(json.one_way_distance_km != null ? json.one_way_distance_km : json.distance_km);
+          if (isFinite(oneWayDistance) && oneWayDistance >= 0) {
+            var distanceNote = json.distance_source === 'estimate' ? ' (estimated)' : '';
+            document.getElementById('metaOneWayDistance').textContent = formatKm(oneWayDistance) + distanceNote;
+            if (isRoundTrip) {
+              document.getElementById('metaRoundTripDistance').textContent = formatKm(oneWayDistance * 2) + distanceNote;
+            }
+          }
           renderRows(groupCars(json.cars || []));
         })
         .catch(function () {
-          showMessage('Could not reach the server. Showing a sample list instead.');
-          renderRows(groupCars(sampleCars()));
+          showMessage('Could not load vehicle availability or fares. Please try again or contact JB Travels.');
         });
 
       function groupCars(cars) {
@@ -257,6 +296,10 @@
         return '₹ ' + Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       }
 
+      function formatKm(value) {
+        return Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 }) + ' km';
+      }
+
       function openFareDetails(fare) {
         var breakdown = fare && (fare.fare_breakdown || fare.fare) ? (fare.fare_breakdown || fare.fare) : fare;
         var fixedFare = Boolean(fare && fare.fixed_fare);
@@ -264,29 +307,44 @@
         if (fixedFare) {
           rows = [['Fixed airport transfer fare', 'Flat fare', money(breakdown.total)]];
         } else {
-          var chargeableKm = Number(breakdown.chargeable_km || breakdown.distance_km || fare.minimum_km || 0);
+          var multiplier = Number(breakdown.trip_multiplier || (isRoundTrip ? 2 : 1));
+          var tripDistanceKm = Number(breakdown.distance_km || 0);
+          var oneWayDistanceKm = Number(breakdown.one_way_distance_km != null
+            ? breakdown.one_way_distance_km
+            : tripDistanceKm / multiplier);
+          var chargeableKm = Number(breakdown.chargeable_km || tripDistanceKm || fare.minimum_km || 0);
+          var minimumKm = Number(breakdown.minimum_km || fare.minimum_km || 0);
           var rate = Number(breakdown.rate_per_km || fare.rate_per_km || 0);
           var discount = Number(breakdown.discount != null ? breakdown.discount : fare.discount_amount || 0);
-          rows = [
-            ['Included kilometres', chargeableKm.toLocaleString('en-IN') + ' km x ' + money(rate), money(breakdown.distance_fare)],
-            ['Additional fare/km beyond included kilometres', money(rate) + '/KM', ''],
+          var allowanceTotal = Number(breakdown.driver_allowance || 0);
+          var allowancePerTrip = Number(breakdown.driver_allowance_per_trip != null
+            ? breakdown.driver_allowance_per_trip
+            : allowanceTotal / multiplier);
+          rows = [['One-way route distance', formatKm(oneWayDistanceKm), '']];
+          if (multiplier > 1) {
+            rows.push(['Round-trip distance', formatKm(oneWayDistanceKm) + ' × ' + multiplier, formatKm(tripDistanceKm)]);
+          }
+          rows.push(
+            [chargeableKm > tripDistanceKm ? 'Minimum billable distance' : 'Billable distance',
+              (chargeableKm > tripDistanceKm ? formatKm(minimumKm) : formatKm(chargeableKm)) + ' × ' + money(rate) + '/km',
+              money(breakdown.distance_fare)],
             ['Base fare', '', money(breakdown.base_fare)],
-            ['Driver allowance', (breakdown.trip_multiplier || 1) + ' x ' + money(breakdown.driver_allowance), money(breakdown.driver_allowance)],
+            ['Driver allowance', multiplier + ' × ' + money(allowancePerTrip), money(allowanceTotal)],
             ['Toll and permit charges', '', money(Number(breakdown.toll_charge || 0) + Number(breakdown.permit_charge || 0))],
             ['Night charge', '', money(breakdown.night_charge)],
             ['Coupon discount', '', '- ' + money(discount)],
             ['Tax', Number(breakdown.tax_percent || 0).toFixed(2) + '%', money(breakdown.tax_amount)]
-          ];
+          );
         }
         document.getElementById('fareBreakdownBody').innerHTML = rows.map(function (row) {
           return '<tr><th>' + escapeHtml(row[0]) + '</th><td>' + escapeHtml(row[1]) + '</td><td>' + escapeHtml(row[2]) + '</td></tr>';
         }).join('') + '<tr class="total-row"><th colspan="2">Total Fare</th><td>' + escapeHtml(money(breakdown.total != null ? breakdown.total : fare.total)) + '</td></tr>';
         document.getElementById('fareModalSubtitle').textContent = fixedFare
           ? 'Fixed airport transfer fare'
-          : 'Distance-based fare calculation';
+          : journeyLabel + (breakdown.distance_km != null ? ' · ' + formatKm(breakdown.distance_km) : '');
         document.getElementById('fareTerms').innerHTML = fixedFare
           ? '<strong>Extra charges and terms:</strong><br>Toll, parking and applicable airport charges may apply as actuals.'
-          : '<strong>Extra charges and terms:</strong><br>Toll, parking, interstate taxes and green tax apply as actuals.<br>Distance beyond the included kilometres is charged at the displayed rate per kilometre.<br>Night allowance may apply between 10:00 PM and 6:00 AM.';
+          : '<strong>Extra charges and terms:</strong><br>Toll, parking, interstate taxes and green tax apply as actuals.<br>The distance fare uses the billable kilometres and the selected car\'s rate per kilometre.<br>Night allowance may apply between 10:00 PM and 6:00 AM.';
         document.getElementById('fareModal').classList.add('is-open');
         document.body.classList.add('modal-open');
       }
@@ -320,8 +378,14 @@
             'Drop: ' + drop,
             'Pickup Date: ' + date,
             'Pickup Time: ' + time,
-            'Trip Type: ' + journey,
-            'Distance: ' + Number(fareBreakdown.distance_km || 0).toLocaleString('en-IN') + ' km',
+            'Trip Type: ' + journeyLabel,
+            returnDate ? 'Return Date: ' + returnDate : '',
+            returnTime ? 'Return Time: ' + returnTime : '',
+            passengerName ? 'Passenger Name: ' + passengerName : '',
+            passengerPhone ? 'Mobile: ' + passengerPhone : '',
+            passengerEmail ? 'Email: ' + passengerEmail : '',
+            'One-way distance: ' + formatKm(fareBreakdown.one_way_distance_km != null ? fareBreakdown.one_way_distance_km : fareBreakdown.distance_km || 0),
+            isRoundTrip ? 'Round-trip distance: ' + formatKm(fareBreakdown.distance_km || 0) : '',
             'Estimated Fare: ₹' + Number(fareBreakdown.total != null ? fareBreakdown.total : fare.total || 0).toLocaleString('en-IN'),
             '',
             'Please confirm availability.'
@@ -340,15 +404,6 @@
         if (event.key === 'Escape') closeFareDetails();
       });
 
-      // Fallback sample data so the page still demos the layout without a DB/API.
-      function sampleCars() {
-        return [
-          { car_name: 'Swift Dzire', seats: 4, category: 'Sedan', image: '', ac_type: 'NON-AC', fare_breakdown: { total: 8128 } },
-          { car_name: 'Swift Dzire', seats: 4, category: 'Sedan', image: '', ac_type: 'AC', fare_breakdown: { total: 8540 } },
-          { car_name: 'Toyota Innova Crysta', seats: 6, category: 'SUV', image: '', ac_type: 'AC', fare_breakdown: { total: 12298 } },
-          { car_name: 'Toyota Innova', seats: 7, category: 'SUV', image: '', ac_type: 'AC', fare_breakdown: { total: 13122 } }
-        ];
-      }
     })();
   </script>
 </body>

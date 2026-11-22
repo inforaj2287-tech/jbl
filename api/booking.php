@@ -24,13 +24,15 @@ if (empty($input)) {
 
 // --- Collect + sanitise ---------------------------------------------------
 $serviceType = strtoupper(clean((string)($input['service_type'] ?? 'OUTSTATION')));
-$tripType    = strtoupper(clean((string)($input['trip_type'] ?? 'ONE_WAY')));
+$tripType    = strtoupper(str_replace([' ', '-'], '_', clean((string)($input['trip_type'] ?? 'ONE_WAY'))));
 $fromId      = isset($input['from_location_id']) ? (int)$input['from_location_id'] : 0;
 $toId        = isset($input['to_location_id']) ? (int)$input['to_location_id'] : 0;
 $pickup      = clean((string)($input['pickup'] ?? ''));
 $drop        = clean((string)($input['drop'] ?? ''));
 $date        = clean((string)($input['pickup_date'] ?? $input['date'] ?? ''));
 $time        = clean((string)($input['pickup_time'] ?? $input['time'] ?? ''));
+$returnDate  = clean((string)($input['return_date'] ?? ''));
+$returnTime  = clean((string)($input['return_time'] ?? ''));
 $carId       = isset($input['car_id']) ? (int)$input['car_id'] : 0;
 $acType      = strtoupper(clean((string)($input['ac_type'] ?? 'AC'))) === 'NON_AC' ? 'NON_AC' : 'AC';
 $name        = clean((string)($input['name'] ?? ''));
@@ -40,12 +42,35 @@ $specialInstructions = clean((string)($input['special_instructions'] ?? ''));
 
 // --- Validate ---------------------------------------------------------
 $errors = [];
-if ($date === '')                          $errors[] = 'Pickup date is required.';
-if ($time === '')                          $errors[] = 'Pickup time is required.';
+if (!in_array($serviceType, ['LOCAL', 'OUTSTATION', 'AIRPORT'], true)) $errors[] = 'A valid service type is required.';
+if (!in_array($tripType, ['ONE_WAY', 'ROUND_TRIP'], true)) $errors[] = 'A valid trip type is required.';
+if ($serviceType === 'LOCAL' && $tripType === 'ROUND_TRIP') $errors[] = 'Round trips are available for outstation and airport services only.';
+$pickupDateValue = DateTime::createFromFormat('!Y-m-d', $date);
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)
+    || !$pickupDateValue
+    || $pickupDateValue->format('Y-m-d') !== $date) $errors[] = 'A valid pickup date is required.';
+if ($date !== '' && $date < date('Y-m-d')) $errors[] = 'Pickup date cannot be in the past.';
+if (!preg_match('/^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/', $time)) $errors[] = 'A valid pickup time is required.';
 if ($name === '')                          $errors[] = 'Name is required.';
 if (!preg_match('/^[0-9]{10}$/', $phone))  $errors[] = 'Enter a valid 10-digit phone number.';
 if ($carId <= 0)                           $errors[] = 'Please choose a car.';
-if (!in_array($serviceType, ['LOCAL', 'OUTSTATION', 'AIRPORT'], true)) $serviceType = 'OUTSTATION';
+if ($tripType === 'ROUND_TRIP') {
+    $returnDateValue = DateTime::createFromFormat('!Y-m-d', $returnDate);
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $returnDate)
+        || !$returnDateValue
+        || $returnDateValue->format('Y-m-d') !== $returnDate
+        || $returnDate < $date) {
+        $errors[] = 'A valid return date on or after the pickup date is required.';
+    }
+    if (!preg_match('/^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/', $returnTime)) $errors[] = 'A valid return time is required.';
+    if ($returnDate === $date && $returnTime !== '' && $time !== ''
+        && strtotime($returnDate . ' ' . $returnTime) <= strtotime($date . ' ' . $time)) {
+        $errors[] = 'Return time must be after pickup time for a same-day return.';
+    }
+} else {
+    $returnDate = '';
+    $returnTime = '';
+}
 
 if (!empty($errors)) {
     json_response(false, implode(' ', $errors));
@@ -87,8 +112,13 @@ try {
     }
 
     // simple availability check: same car already booked that date
-    $av = $pdo->prepare("SELECT id FROM bookings WHERE car_id = ? AND booking_status IN ('CONFIRMED','ASSIGNED','DRIVER_ASSIGNED','ON_TRIP') AND pickup_date = ? LIMIT 1");
-    $av->execute([$carId, $date]);
+    $av = $pdo->prepare("SELECT id FROM bookings
+        WHERE car_id = ?
+          AND booking_status IN ('CONFIRMED','ASSIGNED','DRIVER_ASSIGNED','ON_TRIP')
+          AND pickup_date <= ?
+          AND COALESCE(return_date, pickup_date) >= ?
+        LIMIT 1");
+    $av->execute([$carId, $returnDate !== '' ? $returnDate : $date, $date]);
     if ($av->fetch()) {
         $pdo->rollBack();
         json_response(false, 'Selected car is not available for the chosen date.');
@@ -114,8 +144,8 @@ try {
     $bookingNumber = 'JBL' . date('Ymd') . strtoupper(substr(bin2hex(random_bytes(3)), 0, 5));
 
     $bstmt = $pdo->prepare('INSERT INTO bookings
-        (booking_number, customer_id, service_type, trip_type, from_location_id, to_location_id, pickup_date, pickup_time, car_id, ac_type, distance_km, base_fare, driver_allowance, toll_charge, permit_charge, night_charge, discount, tax_amount, total_amount, payment_status, booking_status, special_instructions)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+        (booking_number, customer_id, service_type, trip_type, from_location_id, to_location_id, pickup_date, pickup_time, return_date, return_time, car_id, ac_type, distance_km, base_fare, driver_allowance, toll_charge, permit_charge, night_charge, discount, tax_amount, total_amount, payment_status, booking_status, special_instructions)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
 
     $bstmt->execute([
         $bookingNumber,
@@ -126,6 +156,8 @@ try {
         $toId,
         $date,
         $time,
+        $returnDate !== '' ? $returnDate : null,
+        $returnTime !== '' ? $returnTime : null,
         $carId,
         $acType,
         $distance,
@@ -158,6 +190,9 @@ try {
         'total' => $fareInfo['total'],
     ]);
 
+} catch (DistanceUnavailableException $e) {
+    if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
+    json_response(false, $e->getMessage());
 } catch (Exception $e) {
     if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
     error_log('Booking error: ' . $e->getMessage());

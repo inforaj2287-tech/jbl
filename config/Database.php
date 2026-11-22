@@ -3,6 +3,10 @@ declare(strict_types=1);
 
 namespace Config;
 
+require_once __DIR__ . '/Environment.php';
+
+Environment::load();
+
 /**
  * PDO singleton. Reads credentials from environment variables or an
  * untracked database.local.php file for shared hosts.

@@ -28,6 +28,29 @@ and car search require PHP and the configured MySQL database. Booking and
 contact enquiries open a prepared WhatsApp message; the customer must send it
 and wait for JB Travels to confirm availability.
 
+### Database configuration
+
+The booking and admin features use MySQL. Copy `.env.example` to `.env` in the
+project root and set the database credentials supplied by your host:
+
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=your_database_name
+DB_USER=your_database_user
+DB_PASSWORD="your_database_password"
+```
+
+`DB_HOST` may be a host name or IP address; use the exact database host shown
+in your hosting control panel. Import `schema.sql` into that database, then
+run `add_travel_cities.sql` if you are upgrading an existing database. The
+server needs PHP with PDO MySQL enabled.
+
+Do not commit `.env` or put it in a publicly downloadable location. The root
+`.htaccess` blocks it on Apache; for Nginx, configure the server to deny access
+to `.env` files. Environment variables configured directly by the host take
+precedence over values in `.env`.
+
 **Option 1 — PHP's built-in server (fastest):**
 ```bash
 cd jbl

@@ -8,9 +8,25 @@ document.addEventListener('DOMContentLoaded', function() {
   var savedDrop = savedParams.get('drop');
   var savedDate = savedParams.get('date');
   var savedTime = savedParams.get('time');
+  var savedName = savedParams.get('name');
+  var savedPhone = savedParams.get('phone');
+  var savedEmail = savedParams.get('email');
+  var savedJourney = savedParams.get('journey');
+  var savedReturnDate = savedParams.get('return_date');
+  var savedContact = {};
+  try {
+    savedContact = JSON.parse(sessionStorage.getItem('jblBookingContact') || '{}');
+  } catch (error) {
+    console.error('Unable to restore passenger details for car search.', error);
+  }
 
   if (savedDate) document.getElementById('date').value = savedDate;
   if (savedTime) document.getElementById('time').value = savedTime;
+  if (savedName || savedContact.name) document.getElementById('passengerName').value = savedName || savedContact.name;
+  if (savedPhone || savedContact.phone) document.getElementById('mobile').value = savedPhone || savedContact.phone;
+  if (savedEmail || savedContact.email) document.getElementById('email').value = savedEmail || savedContact.email;
+  if (savedJourney) document.getElementById('journeyType').value = savedJourney;
+  if (savedReturnDate) document.getElementById('returnDate').value = savedReturnDate;
   if (savedTrip) {
     document.getElementById('tripType').value = savedTrip;
     document.querySelectorAll('#meterTabs button').forEach(function (button) {
@@ -28,7 +44,8 @@ document.addEventListener('DOMContentLoaded', function() {
     'Gandhinagar', 'Rajkot', 'Madurai', 'Kochi', 'Mysuru', 'Shivamogga',
     'Kolar', 'Mangaluru', 'Raichur', 'Bidar', 'Kalaburagi', 'Vijayanagara',
     'Hassan', 'Davangere', 'Tumakuru', 'Chitradurga', 'Bagalkot', 'Gadag',
-    'Dharwad', 'Uttara Kannada'
+    'Dharwad', 'Uttara Kannada', 'Gokarna', 'Dandeli', 'Hampi', 'Tirupati',
+    'Coorg', 'Belagavi Airport'
   ];
   var cityAliases = {
     hubli: 'Hubballi',
@@ -58,13 +75,11 @@ document.addEventListener('DOMContentLoaded', function() {
   function updatePickupOptions(tripType) {
     activeTripType = tripType;
     var pickupValue = pickupSelect.value || savedPickup || '';
-    var airportCities = [
-      { city: 'Belagavi', label: 'Belagavi' },
-      { city: 'Belagavi Airport', label: 'Belagavi Airport' }
-    ];
-    var pickupCities = tripType === 'airport'
-      ? airportCities
-      : [{ city: 'Belagavi', label: 'Belagavi' }];
+    var pickupCities = cityOptions.slice();
+    if (!pickupCities.some(function (city) { return city.city === 'Belagavi Airport'; })) {
+      pickupCities.push({ city: 'Belagavi Airport', label: 'Belagavi Airport' });
+    }
+    if (tripType === 'airport' && !pickupValue) pickupValue = 'Belagavi Airport';
     populateCitySelect(pickupSelect, pickupCities, pickupValue);
   }
 
@@ -122,16 +137,27 @@ document.addEventListener('DOMContentLoaded', function() {
       showError('Pickup and drop locations must be different.');
       return;
     }
+    if (tripType === 'local' && /airport/i.test(pickupInput + ' ' + dropInput)) {
+      tripType = 'airport';
+    }
     if (!pickupDate || !/^\d{4}-\d{2}-\d{2}$/.test(pickupDate)) {
       showError('Please select a valid pickup date.');
       return;
     }
-    if (pickupDate < new Date().toISOString().slice(0, 10)) {
+    if (pickupDate < document.getElementById('date').min) {
       showError('Pickup date cannot be in the past.');
       return;
     }
     if (!pickupTime || !/^\d{2}:\d{2}$/.test(pickupTime)) {
       showError('Please select a valid pickup time.');
+      return;
+    }
+    if (!document.getElementById('bookingForm').reportValidity()) return;
+
+    var journeyType = document.getElementById('journeyType').value;
+    var returnDate = document.getElementById('returnDate').value;
+    if (tripType === 'outstation' && journeyType === 'Round Trip' && returnDate < pickupDate) {
+      showError('Return date must be on or after the pickup date.');
       return;
     }
 
@@ -153,13 +179,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
       var params = new URLSearchParams({
         trip: tripType,
+        journey: tripType === 'outstation' ? (journeyType === 'Round Trip' ? 'round_trip' : 'one_way') : 'one_way',
         pickup: pickupInput,
         drop: dropInput,
         date: pickupDate,
-        time: pickupTime
+        time: pickupTime,
+        return_date: tripType === 'outstation' && journeyType === 'Round Trip' ? returnDate : ''
       });
 
-      window.location.href = 'outstation_search.html?' + params.toString();
+      try {
+        sessionStorage.setItem('jblBookingContact', JSON.stringify({
+          name: document.getElementById('passengerName').value.trim(),
+          phone: document.getElementById('mobile').value.trim(),
+          email: document.getElementById('email').value.trim()
+        }));
+        window.location.href = 'outstation_search.html?' + params.toString();
+      } catch (error) {
+        console.error('Unable to pass passenger details to car search.', error);
+        showError('Could not continue to car search. Please use Book on WhatsApp or try again.');
+      }
     }).catch(function () {
       showError('Could not validate these cities. Please try again.');
     });

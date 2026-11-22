@@ -72,8 +72,8 @@
       <nav class="nav-links" id="navLinks">
         <a href="index.html#top">Home</a>
         <a href="index.html#airport">Airport</a>
-        <a href="index.html#outstation">Outstation</a>
-        <a href="index.html#fleet">Local</a>
+        <a href="index.html#destinations">Outstation</a>
+        <a href="index.html#services">Local</a>
       </nav>
       <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
     </div>
@@ -153,6 +153,16 @@
       var time = params.get('time') || '09:00';
       var trip = params.get('trip') || 'outstation';
       var journey = params.get('journey') || 'one_way';
+      var returnDate = params.get('return_date') || '';
+      var bookingContact = {};
+      try {
+        bookingContact = JSON.parse(sessionStorage.getItem('jblBookingContact') || '{}');
+      } catch (error) {
+        console.error('Unable to restore passenger details for booking.', error);
+      }
+      var passengerName = bookingContact.name || '';
+      var passengerPhone = bookingContact.phone || '';
+      var passengerEmail = bookingContact.email || '';
 
       document.getElementById('routeTitle').innerHTML =
         escapeHtml(pickup) + ' <span style="color:var(--ink-soft); font-weight:400; font-size:15px;">&nbsp; &gt; &nbsp;' + escapeHtml(drop) + '</span>';
@@ -168,7 +178,8 @@
           pickup: pickup,
           drop: drop,
           date: date,
-          time: time
+          time: time,
+          return_date: returnDate
         });
         window.location.href = 'index.html?' + modifyParams.toString() + '#book';
       });
@@ -193,8 +204,7 @@
           renderRows(groupCars(json.cars || []));
         })
         .catch(function () {
-          showMessage('Could not reach the server. Showing a sample list instead.');
-          renderRows(groupCars(sampleCars()));
+          showMessage('Could not load vehicle availability or fares. Please try again or contact JB Travels.');
         });
 
       function groupCars(cars) {
@@ -321,6 +331,10 @@
             'Pickup Date: ' + date,
             'Pickup Time: ' + time,
             'Trip Type: ' + journey,
+            returnDate ? 'Return Date: ' + returnDate : '',
+            passengerName ? 'Passenger Name: ' + passengerName : '',
+            passengerPhone ? 'Mobile: ' + passengerPhone : '',
+            passengerEmail ? 'Email: ' + passengerEmail : '',
             'Distance: ' + Number(fareBreakdown.distance_km || 0).toLocaleString('en-IN') + ' km',
             'Estimated Fare: ₹' + Number(fareBreakdown.total != null ? fareBreakdown.total : fare.total || 0).toLocaleString('en-IN'),
             '',
@@ -340,15 +354,6 @@
         if (event.key === 'Escape') closeFareDetails();
       });
 
-      // Fallback sample data so the page still demos the layout without a DB/API.
-      function sampleCars() {
-        return [
-          { car_name: 'Swift Dzire', seats: 4, category: 'Sedan', image: '', ac_type: 'NON-AC', fare_breakdown: { total: 8128 } },
-          { car_name: 'Swift Dzire', seats: 4, category: 'Sedan', image: '', ac_type: 'AC', fare_breakdown: { total: 8540 } },
-          { car_name: 'Toyota Innova Crysta', seats: 6, category: 'SUV', image: '', ac_type: 'AC', fare_breakdown: { total: 12298 } },
-          { car_name: 'Toyota Innova', seats: 7, category: 'SUV', image: '', ac_type: 'AC', fare_breakdown: { total: 13122 } }
-        ];
-      }
     })();
   </script>
 </body>

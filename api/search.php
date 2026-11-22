@@ -96,25 +96,12 @@ try {
 
     $rateStmt = $pdo->prepare('SELECT * FROM car_rates WHERE car_id = ? AND service_type = ? AND status = 1');
 
-    $fixedAirportFare = null;
-    if ($serviceType === 'AIRPORT') {
-        $pickupIsAirport = stripos((string)($input['pickup'] ?? ''), 'airport') !== false;
-        $dropIsAirport = stripos((string)($input['drop'] ?? ''), 'airport') !== false;
-        if ($tripType === 'ROUND_TRIP' && ($pickupIsAirport || $dropIsAirport)) {
-            $fixedAirportFare = 1295.0;
-        } elseif ($pickupIsAirport) {
-            $fixedAirportFare = 574.0;
-        } elseif ($dropIsAirport) {
-            $fixedAirportFare = 674.0;
-        }
-    }
-
     $results = [];
     foreach ($cars as $c) {
         $rateStmt->execute([$c['id'], $serviceType]);
         $rates = $rateStmt->fetchAll();
 
-        if (!$rates && $fixedAirportFare === null) {
+        if (!$rates) {
             continue; // this car has no pricing at all for this service
         }
 
@@ -130,13 +117,6 @@ try {
             'non_ac'      => null,
             'ac'          => null,
         ];
-
-        if ($fixedAirportFare !== null) {
-            $entry['non_ac'] = airport_fare_bucket($fixedAirportFare, 'NON_AC');
-            $entry['ac'] = airport_fare_bucket($fixedAirportFare, 'AC');
-            $results[] = $entry;
-            continue;
-        }
 
         foreach ($rates as $rate) {
             $fare = $tripType === 'ROUND_TRIP'
@@ -210,32 +190,4 @@ function fetch_location(\PDO $pdo, int $id): ?array
     $stmt->execute([$id]);
     $row = $stmt->fetch();
     return $row ?: null;
-}
-
-function airport_fare_bucket(float $amount, string $acType): array
-{
-    $fare = [
-        'distance_km' => 0,
-        'chargeable_km' => 0,
-        'rate_per_km' => 0,
-        'distance_fare' => 0,
-        'base_fare' => $amount,
-        'driver_allowance' => 0,
-        'toll_charge' => 0,
-        'permit_charge' => 0,
-        'night_charge' => 0,
-        'discount' => 0,
-        'tax_percent' => 0,
-        'tax_amount' => 0,
-        'total' => $amount,
-    ];
-
-    return [
-        'ac_type' => $acType,
-        'discount_amount' => 0,
-        'fixed_fare' => true,
-        'fare' => $fare,
-        'fare_breakdown' => $fare,
-        'total' => $amount,
-    ];
 }

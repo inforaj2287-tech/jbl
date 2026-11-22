@@ -60,7 +60,7 @@
       <div class="wrap hero-content">
         <p class="eyebrow">Belagavi &amp; journeys beyond</p>
         <h1>Your Journey,<br><em>Our Priority</em></h1>
-        <p class="hero-copy">Reliable Taxi Services for Airport Transfers, Local Travel and Outstation Journeys.</p>
+        <p class="hero-copy">Reliable Car Services for Airport Transfers, Local Travel and Outstation Journeys.</p>
         <div class="hero-actions">
           <a class="btn btn-yellow" href="#book">Book Your Ride <span aria-hidden="true">→</span></a>
           <a class="btn btn-outline-light" href="#contact">Contact Us</a>
@@ -70,94 +70,102 @@
       <a class="hero-scroll" href="#book" aria-label="Scroll to booking form"><span></span> Plan your ride</a>
     </section>
 
-    <section class="booking-section" id="book" aria-labelledby="booking-title">
-      <div class="wrap booking-wrap">
-        <div class="booking-intro">
-          <p class="eyebrow">Start your trip</p>
-          <h2 id="booking-title">Where would you like to go?</h2>
-          <p>Share your travel details and we’ll help plan the right ride. Your request opens in WhatsApp for you to send to our team.</p>
-          <div class="booking-callout"><span aria-hidden="true">✦</span><span>Need help? <a href="tel:+919740309999">Call +91 97403 09999</a></span></div>
+    <section class="booking-section" id="book" aria-label="Book a car">
+      <div class="booking-card">
+        <div class="booking-tabs" role="tablist" aria-label="Choose a car service">
+          <button type="button" class="active" id="tab-outstation" role="tab" aria-selected="true" aria-controls="bookingPanel" data-tab="outstation">Outstation</button>
+          <button type="button" id="tab-airport" role="tab" aria-selected="false" aria-controls="bookingPanel" data-tab="airport">Airport</button>
+          <button type="button" id="tab-local" role="tab" aria-selected="false" aria-controls="bookingPanel" data-tab="local">Local Car</button>
+          <button type="button" id="tab-package" role="tab" aria-selected="false" aria-controls="bookingPanel" data-tab="package">Package</button>
         </div>
-        <div class="booking-card">
-          <div class="booking-tabs" role="tablist" aria-label="Choose a service">
-            <button type="button" class="active" id="tab-local" role="tab" aria-selected="true" aria-controls="bookingPanel" data-tab="local">Local Taxi</button>
-            <button type="button" id="tab-outstation" role="tab" aria-selected="false" aria-controls="bookingPanel" data-tab="outstation">Outstation Taxi</button>
-            <button type="button" id="tab-package" role="tab" aria-selected="false" aria-controls="bookingPanel" data-tab="package">Tour Packages</button>
-          </div>
-          <form class="booking-form" id="bookingForm" novalidate>
-            <input type="hidden" name="service" id="tripType" value="local">
-            <input type="hidden" name="preferred_vehicle" id="preferredVehicle" value="">
-            <div id="bookingPanel" role="tabpanel" aria-labelledby="tab-local">
+        <form class="booking-form" id="bookingForm" novalidate>
+          <input type="hidden" name="service" id="tripType" value="outstation">
+          <input type="hidden" name="preferred_vehicle" id="preferredVehicle" value="">
+          <div id="bookingPanel" role="tabpanel" aria-labelledby="tab-outstation">
+            <div class="form-grid">
+              <fieldset class="field field-full trip-options-field" data-show="outstation,airport">
+                <legend class="visually-hidden">Trip type</legend>
+                <div class="trip-options" role="radiogroup" aria-label="Trip type">
+                  <label class="trip-radio" for="journeyRound">
+                    <input type="radio" id="journeyRound" name="journey_type" value="Round Trip" checked required>
+                    <span>Round Trip</span>
+                  </label>
+                  <label class="trip-radio" for="journeyOneWay">
+                    <input type="radio" id="journeyOneWay" name="journey_type" value="One Way">
+                    <span>One Way</span>
+                  </label>
+                </div>
+              </fieldset>
+              <div class="field field-full" data-show="local,outstation,airport,package">
+                <label for="pickup">Pickup Location</label>
+                <select id="pickup" name="pickup" required>
+                  <option value="Belagavi">Belagavi</option>
+                </select>
+              </div>
+              <div class="field field-full" data-show="local,outstation,airport">
+                <label for="drop">Drop Location</label>
+                <select id="drop" name="drop" required>
+                  <option value="">Choose a destination</option>
+                </select>
+              </div>
+              <div class="field field-full" data-show="package">
+                <label for="destination">Tour Destination</label>
+                <select id="destination" name="destination" required>
+                  <option value="">Choose a destination</option>
+                  <option>Goa</option><option>Gokarna</option><option>Dandeli</option><option>Hampi</option>
+                  <option>Tirupati</option><option>Mysore</option><option>Coorg</option><option>Belagavi</option>
+                </select>
+              </div>
+              <div class="field" data-show="local,outstation,airport,package">
+                <label for="date">Pickup Date</label>
+                <input type="date" id="date" name="date" required>
+              </div>
+              <div class="field" data-show="local,outstation,airport">
+                <label for="time">Pickup Time</label>
+                <input type="time" id="time" name="time" required>
+              </div>
+              <div class="field" data-show="outstation,airport" id="returnDateField" hidden>
+                <label for="returnDate">Return Date</label>
+                <input type="date" id="returnDate" name="return_date">
+              </div>
+              <div class="field" data-show="outstation,airport" id="returnTimeField" hidden>
+                <label for="returnTime">Return Time</label>
+                <input type="time" id="returnTime" name="return_time">
+              </div>
+              <div class="field" data-show="package">
+                <label for="days">Number of Days</label>
+                <input type="number" id="days" name="days" min="1" max="60" placeholder="e.g. 3" required>
+              </div>
+              <div class="field" data-show="package">
+                <label for="passengers">Number of Passengers</label>
+                <input type="number" id="passengers" name="passengers" min="1" max="50" placeholder="e.g. 4" required>
+              </div>
+            </div>
+            <details class="booking-contact-details" id="bookingContactDetails">
+              <summary>Passenger details <span>Required to send enquiry</span></summary>
               <div class="form-grid">
-                <div class="field" data-show="local,outstation,package">
-                  <label for="pickup">Pickup Location</label>
-                  <select id="pickup" name="pickup" required>
-                    <option value="Belagavi">Belagavi</option>
-                  </select>
-                </div>
-                <div class="field" data-show="local,outstation">
-                  <label for="drop">Drop Location</label>
-                  <select id="drop" name="drop" required>
-                    <option value="">Choose a destination</option>
-                  </select>
-                </div>
-                <div class="field" data-show="package">
-                  <label for="destination">Tour Destination</label>
-                  <select id="destination" name="destination" required>
-                    <option value="">Choose a destination</option>
-                    <option>Goa</option><option>Gokarna</option><option>Dandeli</option><option>Hampi</option>
-                    <option>Tirupati</option><option>Mysore</option><option>Coorg</option><option>Belagavi</option>
-                  </select>
-                </div>
-                <div class="field" data-show="local,outstation,package">
-                  <label for="date">Travel Date</label>
-                  <input type="date" id="date" name="date" required>
-                </div>
-                <div class="field" data-show="local,outstation">
-                  <label for="time">Pickup Time</label>
-                  <input type="time" id="time" name="time" required>
-                </div>
-                <div class="field" data-show="outstation">
-                  <label for="journeyType">Journey Type</label>
-                  <select id="journeyType" name="journey_type">
-                    <option value="One Way">One Way</option>
-                    <option value="Round Trip">Round Trip</option>
-                  </select>
-                </div>
-                <div class="field" data-show="outstation" id="returnDateField" hidden>
-                  <label for="returnDate">Return Date</label>
-                  <input type="date" id="returnDate" name="return_date">
-                </div>
-                <div class="field" data-show="package">
-                  <label for="days">Number of Days</label>
-                  <input type="number" id="days" name="days" min="1" max="60" placeholder="e.g. 3" required>
-                </div>
-                <div class="field" data-show="package">
-                  <label for="passengers">Number of Passengers</label>
-                  <input type="number" id="passengers" name="passengers" min="1" max="50" placeholder="e.g. 4" required>
-                </div>
-                <div class="field" data-show="local,outstation,package">
+                <div class="field">
                   <label for="passengerName">Passenger Name</label>
                   <input type="text" id="passengerName" name="name" autocomplete="name" maxlength="100" placeholder="Your name" required>
                 </div>
-                <div class="field" data-show="local,outstation,package">
+                <div class="field">
                   <label for="mobile">Mobile Number</label>
                   <input type="tel" id="mobile" name="phone" autocomplete="tel" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" placeholder="10-digit number" required>
                 </div>
-                <div class="field field-wide" data-show="local,outstation,package">
+                <div class="field field-full">
                   <label for="email">Email Address <span class="optional">(optional)</span></label>
                   <input type="email" id="email" name="email" autocomplete="email" maxlength="150" placeholder="you@example.com">
                 </div>
               </div>
-              <div class="booking-actions">
-                <button type="submit" class="btn btn-yellow btn-block" id="bookWhatsapp">Book on WhatsApp <span aria-hidden="true">↗</span></button>
-                <button type="button" class="btn btn-search" id="searchCars">Compare available cars</button>
-              </div>
-              <p class="booking-disclaimer">Your ride is not confirmed until our team replies. WhatsApp will open with your enquiry ready to send.</p>
-              <div class="form-msg" id="bookingMsg" role="status" aria-live="polite"></div>
+            </details>
+            <div class="booking-actions">
+              <button type="button" class="btn btn-yellow" id="searchCars">Search Cars <span aria-hidden="true">→</span></button>
+              <button type="submit" class="btn btn-search" id="bookWhatsapp">Book a Car on WhatsApp</button>
             </div>
-          </form>
-        </div>
+            <p class="booking-disclaimer">Your ride is confirmed only after our team replies.</p>
+            <div class="form-msg" id="bookingMsg" role="status" aria-live="polite"></div>
+          </div>
+        </form>
       </div>
     </section>
 
@@ -190,7 +198,7 @@
             <li><span aria-hidden="true">✓</span> Early Morning Transfers</li>
             <li><span aria-hidden="true">✓</span> Late Night Transfers</li>
           </ul>
-          <a class="btn btn-yellow" href="#book" data-book-tab="local" data-airport-pickup="true">Book Airport Taxi <span aria-hidden="true">→</span></a>
+          <a class="btn btn-yellow" href="#book" data-book-tab="airport" data-airport-pickup="true">Book Airport Car <span aria-hidden="true">→</span></a>
           <p class="fine-print">Contact us to confirm the service and receive a quote. Fare depends on your trip details.</p>
         </div>
       </div>
@@ -307,14 +315,14 @@
               <iframe title="Map showing Teachers Colony, Vadagaon, Belagavi" src="https://www.google.com/maps?q=Teachers+Colony+Vadagaon+Belagavi+Karnataka&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
           </div>
-          <form class="contact-form contact-card" id="contactForm" data-endpoint="api/contact.php">
+          <form class="contact-form contact-card" id="contactForm">
             <h3>Send us a message</h3>
-            <p>We’ll get back to you about your enquiry.</p>
+            <p>We’ll open WhatsApp with your enquiry so you can send it directly to our team.</p>
             <div class="field"><label for="cName">Your Name</label><input type="text" id="cName" name="name" autocomplete="name" maxlength="100" required></div>
             <div class="field"><label for="cPhone">Mobile Number</label><input type="tel" id="cPhone" name="phone" autocomplete="tel" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" required></div>
             <div class="field"><label for="cEmail">Email Address</label><input type="email" id="cEmail" name="email" autocomplete="email" maxlength="150" required></div>
             <div class="field"><label for="cMsg">How can we help?</label><textarea id="cMsg" name="message" rows="4" maxlength="2000" required></textarea></div>
-            <button type="submit" class="btn btn-yellow btn-block">Send Enquiry <span aria-hidden="true">→</span></button>
+            <button type="submit" class="btn btn-yellow btn-block">Send Enquiry on WhatsApp <span aria-hidden="true">→</span></button>
             <div class="form-msg" id="contactMsg" role="status" aria-live="polite"></div>
           </form>
         </div>

@@ -139,7 +139,7 @@ include __DIR__ . '/../includes/sidebar.php';
         </div>
         <div class="field">
           <label>Tax %</label>
-          <input name="tax_percent" type="number" step="0.01" min="0" value="<?= htmlspecialchars((string)($editRate['tax_percent'] ?? '5.00')) ?>">
+          <input name="tax_percent" type="number" step="0.01" min="0" value="<?= htmlspecialchars((string)($editRate['tax_percent'] ?? '0.00')) ?>">
         </div>
         <div class="field">
           <label>Status</label>

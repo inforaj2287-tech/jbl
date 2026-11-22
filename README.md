@@ -2,29 +2,31 @@
 
 A responsive taxi and travel website for JB Travels, with local, airport,
 outstation and tour-package enquiries. Customers can request a quote through
-WhatsApp, compare vehicles using admin-configured fares, or send a message
-through the PHP-backed contact form. The homepage uses the existing fleet and
-contact information and does not publish unverified reviews or prices.
+WhatsApp, compare vehicles using admin-configured fares, or send a contact
+enquiry through WhatsApp. The homepage uses the existing fleet and contact
+information and does not publish unverified reviews or prices.
 
 ## Files
 
 - `index.html` — responsive homepage and booking/contact forms
+- `pages/terms-and-conditions.html` — terms page styled to match the homepage
 - `assets/css/home.css` — homepage design and responsive layout
 - `assets/js/app.js` — navigation, booking tabs, WhatsApp enquiries, fleet cards and contact form
 - `assets/js/search.js` — city lookup and vehicle search handoff
 - `outstation_search.html` — available cars and admin-configured fare results
-- `api/contact.php` — validates and stores contact messages
+- `api/contact.php` — optional endpoint for direct API contact submissions
 - `api/fleet.php` — returns active vehicles from the database
 - `api/search.php` and `api/booking.php` — database-backed vehicle search and booking
+- `set_default_tax_zero.sql` — one-time update for existing databases
 - `config/` and `services/` — database setup and fare/distance services
-- `data/contacts.json` — contact enquiries (created by the PHP application)
+- `data/contacts.json` — direct API contact submissions (when that endpoint is used)
 
 ## Running it locally
 
-The homepage can be viewed as static files, but vehicle listings, city lookup,
-car search and contact submissions require PHP and the configured MySQL
-database. Booking enquiries open a prepared WhatsApp message; the customer
-must send it and wait for JB Travels to confirm availability.
+The homepage can be viewed as static files, but vehicle listings, city lookup
+and car search require PHP and the configured MySQL database. Booking and
+contact enquiries open a prepared WhatsApp message; the customer must send it
+and wait for JB Travels to confirm availability.
 
 **Option 1 — PHP's built-in server (fastest):**
 ```bash
@@ -55,6 +57,9 @@ the PHP application's environment.
 Import `schema.sql` only into a new/empty database: it drops and recreates
 tables. For an existing installation, do not import it; use the relevant
 non-destructive update scripts instead.
+Run `set_default_tax_zero.sql` once on an existing database to change its
+default tax to 0% and reset legacy 5% rate rows to 0%; other configured tax
+rates are preserved.
 
 ## Updating the city list
 
@@ -65,11 +70,16 @@ installations receive the same cities from `schema.sql`.
 
 ## Notes for going to production
 
-- Booking requests are sent only when the customer submits the prepared
-  WhatsApp message. Contact form messages are stored as JSON under `data/`.
+- Booking and contact enquiries are sent only when the customer submits the
+  prepared WhatsApp message. Contact form submissions are not stored by the
+  website.
 - The WhatsApp contact, call number, email and business address are shown in
   `index.html`; verify them with the business owner before deployment.
 - Configure current vehicle inventory and rates in the admin panel. Vehicle
   search results use configured rates and do not provide sample fares.
+- Outstation fares use saved road-distance overrides when available; other
+  routes are marked estimated from location coordinates. Add verified route
+  distances in the admin panel for accurate quotes. Round trips bill both
+  distance legs and driver allowance.
 - Google Fonts and destination photography are loaded from external services.
   Self-host licensed assets if you need offline operation or tighter privacy.

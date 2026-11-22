@@ -1,10 +1,139 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Contact Us | JB Travels Belagavi</title><meta name="description" content="Contact JB Travels Belagavi for local taxis, airport transfers and outstation cab bookings."><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../assets/css/app.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact JB Travels | Belagavi Taxi and Travel Services</title>
+  <meta name="description" content="Contact JB Travels in Belagavi for local car service, airport transfers, outstation journeys and tour packages.">
+  <meta name="theme-color" content="#102744">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/app.css">
+  <link rel="stylesheet" href="../assets/css/home.css">
 </head>
 <body>
-<header class="site-header"><div class="wrap"><a class="logo" href="../index.html#top"><span class="mark">JB</span><span class="word">JB TRAVELS <small>BELAGAVI</small></span></a><nav class="nav-links" id="navLinks"><a href="../index.html#top">Home</a><a href="services.html">Services</a><a href="faq.html">FAQ</a><a href="contact.html">Contact</a></nav><div class="header-cta"><div class="phone-pill"><span class="dot"></span> +91-9740309999</div><a class="btn btn-yellow" href="../index.html#book">Book a Car</a></div><button class="nav-toggle" id="navToggle" aria-label="Toggle menu">&#9776;</button></div></header>
-<main><section class="page-hero"><div class="wrap"><div class="eyebrow" style="color:var(--yellow)">Get in touch</div><h1>Let’s plan your journey.</h1><p>Share your route or call the dispatch desk. We will help with the next practical step.</p></div></section><section class="page-content"><div class="wrap contact-grid"><div><h2>Send a message</h2><form class="contact-form" id="contactForm" data-endpoint="../api/contact.php"><div class="field-row"><div class="field"><label for="cName">Name</label><input type="text" id="cName" name="name" required></div><div class="field"><label for="cPhone">Phone</label><input type="tel" id="cPhone" name="phone" pattern="[0-9]{10}" required></div></div><div class="field"><label for="cEmail">Email</label><input type="email" id="cEmail" name="email" required></div><div class="field"><label for="cMsg">Message</label><input type="text" id="cMsg" name="message" placeholder="Tell us about your trip" required></div><button type="submit" class="btn btn-yellow btn-block">Send Message</button><div class="form-msg" id="contactMsg"></div></form></div><div class="contact-info"><h3>Dispatch desk</h3><div class="row"><span class="ic">&#9742;</span><div><span>Phone</span><a href="tel:+919740309999">+91-9740309999</a></div></div><div class="row"><span class="ic">&#9993;</span><div><span>Email</span><a href="mailto:contact@jbtravelsbelagavi.com">contact@jbtravelsbelagavi.com</a></div></div><div class="row"><span class="ic">&#9873;</span><div><span>Office</span>Teachers Colony Vadagaon, Belagavi, Karnataka</div></div><div class="row"><span class="ic">&#9687;</span><div><span>Hours</span>Dispatch open 24 hours, every day</div></div></div></div></section></main>
-<footer class="site-footer"><div class="wrap"><div class="footer-grid"><div><a class="logo" href="../index.html#top" style="margin-bottom:14px"><span class="mark">JB</span><span class="word">JB TRAVELS<small>BELAGAVI</small></span></a><p style="font-size:13.5px;color:#8890a0;line-height:1.7;max-width:280px">Airport, outstation and local car service across Belagavi and surrounding cities.</p></div><div><h5>Company</h5><ul><li><a href="about.html">About Us</a></li><li><a href="contact.html">Contact Us</a></li></ul></div><div><h5>Services</h5><ul><li><a href="services.html#airport-taxi">Airport Taxi</a></li><li><a href="services.html#outstation-cabs">Outstation</a></li><li><a href="services.html#local-cabs">Local Taxi</a></li></ul></div><div><h5>Dispatch</h5><ul><li>contact@jbtravelsbelagavi.com</li><li><a href="tel:+919740309999">+91-9740309999</a></li><li>Teachers Colony Vadagaon, Belagavi</li></ul></div></div><div class="footer-bottom"><span>© 2026 JB Travels Belagavi. All rights reserved.</span><span><a href="privacy-policy.html">Privacy</a> · <a href="terms-and-conditions.html">Terms</a></span></div></div></footer><div class="float-actions"><a class="wa" href="https://wa.me/919535608945" target="_blank" rel="noopener" aria-label="WhatsApp">&#9742;</a><a class="call" href="tel:+919740309999" aria-label="Call">&#9743;</a></div><script src="../assets/js/app.js"></script>
-</body></html>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="logo" href="../index.html#top" aria-label="JB Travels home">
+        <span class="mark">JB</span>
+        <span class="word">JB TRAVELS<small>BELAGAVI · KARNATAKA</small></span>
+      </a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav-links" id="navLinks" aria-label="Main navigation">
+        <a href="../index.html#top">Home</a>
+        <a href="../index.html#about">About Us</a>
+        <a href="../index.html#airport">Airport Taxi</a>
+        <a href="../index.html#services">Local Taxi</a>
+        <a href="../index.html#book" data-book-tab="outstation">Outstation Taxi</a>
+        <a href="../index.html#book" data-book-tab="package">Tour Packages</a>
+        <a href="#contact" aria-current="page">Contact Us</a>
+      </nav>
+      <a class="btn btn-yellow header-book" href="../index.html#book">Book Now <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="subpage-hero">
+      <div class="wrap">
+        <p class="eyebrow">Talk to our team</p>
+        <h1>Let’s plan your next journey.</h1>
+        <p>Share your travel enquiry with JB Travels. We’ll help you plan a reliable ride from Belagavi and beyond.</p>
+      </div>
+    </section>
+
+    <section class="contact-section section" id="contact" aria-labelledby="contact-title">
+      <div class="wrap">
+        <div class="section-heading">
+          <p class="eyebrow">We’re here to help</p>
+          <h2 id="contact-title">Get in touch</h2>
+          <p>Call, email or send your enquiry directly to our team on WhatsApp.</p>
+        </div>
+        <div class="contact-layout">
+          <div class="contact-details">
+            <a class="contact-item" href="tel:+919740309999">
+              <span class="contact-icon" aria-hidden="true">☎</span>
+              <span><small>Call us</small><strong>+91 97403 09999</strong></span>
+            </a>
+            <a class="contact-item" href="https://wa.me/919535608945" target="_blank" rel="noopener noreferrer">
+              <span class="contact-icon" aria-hidden="true">◉</span>
+              <span><small>WhatsApp</small><strong>Message JB Travels</strong></span>
+            </a>
+            <a class="contact-item" href="mailto:contact@jbtravelsbelagavi.com">
+              <span class="contact-icon" aria-hidden="true">✉</span>
+              <span><small>Email</small><strong>contact@jbtravelsbelagavi.com</strong></span>
+            </a>
+            <div class="contact-item">
+              <span class="contact-icon" aria-hidden="true">⌖</span>
+              <span><small>Business address</small><strong>Teachers Colony, Vadagaon<br>Belagavi, Karnataka</strong></span>
+            </div>
+            <div class="map-frame">
+              <iframe title="Map showing Teachers Colony, Vadagaon, Belagavi" src="https://www.google.com/maps?q=Teachers+Colony+Vadagaon+Belagavi+Karnataka&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+          </div>
+
+          <form class="contact-form contact-card" id="contactForm">
+            <h3>Send us an enquiry</h3>
+            <p>WhatsApp will open with your message. Review it and press Send to contact JB Travels.</p>
+            <div class="field">
+              <label for="cName">Your Name</label>
+              <input type="text" id="cName" name="name" autocomplete="name" maxlength="100" required>
+            </div>
+            <div class="field">
+              <label for="cPhone">Mobile Number</label>
+              <input type="tel" id="cPhone" name="phone" autocomplete="tel" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" required>
+            </div>
+            <div class="field">
+              <label for="cEmail">Email Address</label>
+              <input type="email" id="cEmail" name="email" autocomplete="email" maxlength="150" required>
+            </div>
+            <div class="field">
+              <label for="cMsg">How can we help?</label>
+              <textarea id="cMsg" name="message" rows="4" maxlength="2000" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-yellow btn-block">Send Enquiry on WhatsApp <span aria-hidden="true">→</span></button>
+            <div class="form-msg" id="contactMsg" role="status" aria-live="polite"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="logo" href="../index.html#top"><span class="mark">JB</span><span class="word">JB TRAVELS<small>BELAGAVI · KARNATAKA</small></span></a>
+          <p>Local taxi, airport transfer and outstation travel enquiries from Belagavi and beyond.</p>
+          <a class="footer-whatsapp" href="https://wa.me/919535608945" target="_blank" rel="noopener noreferrer">Chat with us on WhatsApp <span aria-hidden="true">↗</span></a>
+        </div>
+        <div>
+          <h2>Quick Links</h2>
+          <ul><li><a href="../index.html#about">About Us</a></li><li><a href="../index.html#services">Our Services</a></li><li><a href="../index.html#destinations">Destinations</a></li><li><a href="../index.html#faq">FAQs</a></li><li><a href="#contact">Contact</a></li></ul>
+        </div>
+        <div>
+          <h2>Taxi Services</h2>
+          <ul><li><a href="../index.html#airport">Airport Taxi</a></li><li><a href="../index.html#services">Local City Taxi</a></li><li><a href="../index.html#book" data-book-tab="outstation">Outstation Taxi</a></li><li><a href="../index.html#book" data-book-tab="package">Tour Packages</a></li></ul>
+        </div>
+        <div>
+          <h2>Get in Touch</h2>
+          <ul><li><a href="tel:+919740309999">+91 97403 09999</a></li><li><a href="mailto:contact@jbtravelsbelagavi.com">contact@jbtravelsbelagavi.com</a></li><li>Teachers Colony, Vadagaon<br>Belagavi, Karnataka</li></ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="currentYear">2026</span> JB Travels. All rights reserved.</span>
+        <span><a href="privacy-policy.html">Privacy Policy</a><a href="terms-and-conditions.html">Terms &amp; Conditions</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="float-actions" aria-label="Quick contact">
+    <a class="wa" href="https://wa.me/919535608945" target="_blank" rel="noopener noreferrer" aria-label="Chat with JB Travels on WhatsApp">WA</a>
+    <a class="call" href="tel:+919740309999" aria-label="Call JB Travels">☎</a>
+  </div>
+  <script src="../assets/js/app.js"></script>
+</body>
+</html>

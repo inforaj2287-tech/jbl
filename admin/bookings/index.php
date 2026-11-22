@@ -55,9 +55,17 @@ include __DIR__ . '/../includes/sidebar.php';
         <tr>
           <td><?= htmlspecialchars($b['booking_number']) ?></td>
           <td><?= htmlspecialchars($b['customer_name']) ?><br><small><?= htmlspecialchars($b['customer_mobile']) ?></small></td>
-          <td><?= htmlspecialchars($b['from_city']) ?> &rarr; <?= htmlspecialchars($b['to_city']) ?><br><small><?= number_format((float)$b['distance_km'],0) ?> km</small></td>
+          <td><?= htmlspecialchars($b['from_city']) ?> &rarr; <?= htmlspecialchars($b['to_city']) ?><br>
+            <small>
+              <?= $b['trip_type'] === 'ROUND_TRIP' ? 'Round trip - ' : 'One way - ' ?>
+              <?= number_format((float)$b['distance_km'], 2) ?> km one way
+              <?= $b['trip_type'] === 'ROUND_TRIP' ? ' - ' . number_format((float)$b['distance_km'] * 2, 2) . ' km total' : '' ?>
+            </small>
+          </td>
           <td><?= htmlspecialchars($b['car_name']) ?> (<?= $b['ac_type'] === 'AC' ? 'AC' : 'Non-AC' ?>)</td>
-          <td><?= htmlspecialchars($b['pickup_date']) ?> <?= htmlspecialchars($b['pickup_time']) ?></td>
+          <td><?= htmlspecialchars($b['pickup_date']) ?> <?= htmlspecialchars($b['pickup_time']) ?>
+            <?php if (!empty($b['return_date'])): ?><br><small>Return: <?= htmlspecialchars($b['return_date']) ?> <?= htmlspecialchars($b['return_time'] ?? '') ?></small><?php endif; ?>
+          </td>
           <td>&#8377; <?= number_format((float)$b['total_amount'], 2) ?></td>
           <td>
             <form method="post" class="inline-form">

@@ -294,6 +294,7 @@ input[type="date"],input[type="time"],input[type="number"],a[href^="tel:"]{ font
 .contact-info .row div span{ display:block; font-size:13px; font-weight:var(--weight-medium); color:#9aa1ad; text-transform:uppercase; letter-spacing:0.06em; }
 .form-msg{ margin-top:12px; font-size:13.5px; font-weight:600; padding:10px 14px; border-radius:5px; display:none; }
 .form-msg.ok{ display:block; background:rgba(25,195,125,0.12); color:var(--meter-dim); }
+.form-msg a{ color:inherit; font-weight:var(--weight-bold); text-decoration:underline; text-underline-offset:2px; }
 .form-msg.err{ display:block; background:rgba(220,60,60,0.1); color:#c23b3b; }
 
 /* ---------- footer ---------- */

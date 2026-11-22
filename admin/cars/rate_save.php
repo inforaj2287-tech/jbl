@@ -32,7 +32,7 @@ $nightCharge = (float)($_POST['night_charge'] ?? 0);
 $tollCharge = (float)($_POST['toll_charge'] ?? 0);
 $permitCharge = (float)($_POST['permit_charge'] ?? 0);
 $discountAmount = (float)($_POST['discount_amount'] ?? 0);
-$taxPercent = (float)($_POST['tax_percent'] ?? 5);
+$taxPercent = (float)($_POST['tax_percent'] ?? 0);
 $status = (int)($_POST['status'] ?? 1);
 
 try {

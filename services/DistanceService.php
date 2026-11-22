@@ -5,6 +5,10 @@ require_once __DIR__ . '/../config/Database.php';
 
 use Config\Database;
 
+class DistanceUnavailableException extends RuntimeException
+{
+}
+
 /**
  * Works out the km distance between two saved locations, which is
  * the number every fare in the app is ultimately based on.
@@ -14,21 +18,23 @@ use Config\Database;
  *   2. A great-circle (haversine) estimate from each location's
  *      lat/lng, bumped up by a road-detour factor since roads are
  *      never perfectly straight.
- *   3. A fixed fallback so the site never breaks if a city is
- *      missing coordinates.
+ *   3. An explicit error if the route has no distance override or
+ *      usable coordinates, rather than inventing a distance.
  */
 class DistanceService
 {
     /** Straight-line distance is always shorter than actual road distance. */
     private const ROAD_DETOUR_FACTOR = 1.18;
 
-    /** Used only when neither an override nor coordinates exist. */
-    private const FALLBACK_KM = 100.0;
-
     public static function getDistanceKm(int $fromLocationId, int $toLocationId): float
     {
+        return self::getDistanceDetails($fromLocationId, $toLocationId)['distance_km'];
+    }
+
+    public static function getDistanceDetails(int $fromLocationId, int $toLocationId): array
+    {
         if ($fromLocationId === $toLocationId) {
-            return 0.0;
+            return ['distance_km' => 0.0, 'source' => 'same_location'];
         }
 
         $pdo = Database::getConnection();
@@ -38,12 +44,17 @@ class DistanceService
             'SELECT distance_km FROM distances
              WHERE (from_location_id = ? AND to_location_id = ?)
                 OR (from_location_id = ? AND to_location_id = ?)
+             ORDER BY CASE WHEN from_location_id = ? AND to_location_id = ? THEN 0 ELSE 1 END
              LIMIT 1'
         );
-        $stmt->execute([$fromLocationId, $toLocationId, $toLocationId, $fromLocationId]);
+        $stmt->execute([
+            $fromLocationId, $toLocationId,
+            $toLocationId, $fromLocationId,
+            $fromLocationId, $toLocationId,
+        ]);
         $row = $stmt->fetch();
         if ($row) {
-            return (float)$row['distance_km'];
+            return ['distance_km' => (float)$row['distance_km'], 'source' => 'manual'];
         }
 
         // 2. Haversine estimate from lat/lng
@@ -63,11 +74,15 @@ class DistanceService
                 (float)$from['latitude'], (float)$from['longitude'],
                 (float)$to['latitude'], (float)$to['longitude']
             );
-            return round($km * self::ROAD_DETOUR_FACTOR, 2);
+            return [
+                'distance_km' => round($km * self::ROAD_DETOUR_FACTOR, 2),
+                'source' => 'estimate',
+            ];
         }
 
-        // 3. Fallback
-        return self::FALLBACK_KM;
+        throw new DistanceUnavailableException(
+            'No route distance is available for these locations. Please contact JB Travels for a quote.'
+        );
     }
 
     private static function haversineKm(float $lat1, float $lon1, float $lat2, float $lon2): float

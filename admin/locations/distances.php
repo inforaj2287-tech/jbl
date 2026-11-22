@@ -41,9 +41,9 @@ include __DIR__ . '/../includes/sidebar.php';
 ?>
 <main class="admin-main">
   <div class="page-head"><h1>Route Distances</h1></div>
-  <p class="hint">Optional. Set an exact road-km figure for a specific pickup &rarr; drop pair — it overrides the
-    automatic straight-line estimate used everywhere else. Every fare is <strong>distance (km) &times; rate per km</strong>,
-    so this number directly changes the price shown to customers on that route.</p>
+  <p class="hint">Set a verified road distance for a pickup &rarr; drop pair to override the coordinate-based estimate.
+    Unlisted routes use a rough estimate, not live road directions; add an exact distance for routes where accurate
+    kilometre-based quotes are required.</p>
 
   <?php if (isset($_GET['saved'])): ?><div class="ok">Distance saved.</div><?php endif; ?>
   <?php if (isset($_GET['deleted'])): ?><div class="ok">Distance removed.</div><?php endif; ?>

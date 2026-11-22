@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var savedEmail = savedParams.get('email');
   var savedJourney = savedParams.get('journey');
   var savedReturnDate = savedParams.get('return_date');
+  var savedReturnTime = savedParams.get('return_time');
   var savedContact = {};
   try {
     savedContact = JSON.parse(sessionStorage.getItem('jblBookingContact') || '{}');
@@ -25,8 +26,13 @@ document.addEventListener('DOMContentLoaded', function() {
   if (savedName || savedContact.name) document.getElementById('passengerName').value = savedName || savedContact.name;
   if (savedPhone || savedContact.phone) document.getElementById('mobile').value = savedPhone || savedContact.phone;
   if (savedEmail || savedContact.email) document.getElementById('email').value = savedEmail || savedContact.email;
-  if (savedJourney) document.getElementById('journeyType').value = savedJourney;
+  if (savedJourney) {
+    var journeyLabel = savedJourney.toLowerCase() === 'round_trip' || savedJourney.toLowerCase() === 'round trip' ? 'Round Trip' : 'One Way';
+    var savedJourneyRadio = document.querySelector('input[name="journey_type"][value="' + journeyLabel + '"]');
+    if (savedJourneyRadio) savedJourneyRadio.checked = true;
+  }
   if (savedReturnDate) document.getElementById('returnDate').value = savedReturnDate;
+  if (savedReturnTime) document.getElementById('returnTime').value = savedReturnTime;
   if (savedTrip) {
     document.getElementById('tripType').value = savedTrip;
     document.querySelectorAll('#meterTabs button').forEach(function (button) {
@@ -70,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
     restoreCity(select, savedCity);
   }
 
-  var activeTripType = savedTrip || 'local';
+  var activeTripType = savedTrip || document.getElementById('tripType').value || 'outstation';
 
   function updatePickupOptions(tripType) {
     activeTripType = tripType;
@@ -86,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var cityOptions = requestedCities.map(function (city) {
     return { city: city, label: city };
   });
-  updatePickupOptions(savedTrip || 'local');
+  updatePickupOptions(activeTripType);
   populateCitySelect(dropSelect, cityOptions, savedDrop);
 
   document.querySelectorAll('#meterTabs button').forEach(function (button) {
@@ -118,12 +124,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
   searchBtn.addEventListener('click', function() {
-    var tripType = (document.getElementById('tripType') || {}).value || 'local';
+    var tripType = (document.getElementById('tripType') || {}).value || 'outstation';
+    var wasLocal = tripType === 'local';
     var pickupInput = document.getElementById('pickup').value.trim();
     var dropInput = document.getElementById('drop').value.trim();
     var pickupDate = document.getElementById('date').value;
     var pickupTime = document.getElementById('time').value;
     var msgEl = document.getElementById('bookingMsg');
+    var bookingContactDetails = document.getElementById('bookingContactDetails');
 
     function showError(message) {
       if (msgEl) { msgEl.className = 'form-msg err'; msgEl.textContent = message; }
@@ -137,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
       showError('Pickup and drop locations must be different.');
       return;
     }
-    if (tripType === 'local' && /airport/i.test(pickupInput + ' ' + dropInput)) {
+    if (wasLocal && /airport/i.test(pickupInput + ' ' + dropInput)) {
       tripType = 'airport';
     }
     if (!pickupDate || !/^\d{4}-\d{2}-\d{2}$/.test(pickupDate)) {
@@ -152,12 +160,20 @@ document.addEventListener('DOMContentLoaded', function() {
       showError('Please select a valid pickup time.');
       return;
     }
+    if (bookingContactDetails) bookingContactDetails.open = true;
     if (!document.getElementById('bookingForm').reportValidity()) return;
 
-    var journeyType = document.getElementById('journeyType').value;
+    var selectedJourney = document.querySelector('input[name="journey_type"]:checked');
+    var journeyType = wasLocal ? 'One Way' : (selectedJourney ? selectedJourney.value : 'One Way');
     var returnDate = document.getElementById('returnDate').value;
-    if (tripType === 'outstation' && journeyType === 'Round Trip' && returnDate < pickupDate) {
+    var returnTime = document.getElementById('returnTime').value;
+    if (['outstation', 'airport'].indexOf(tripType) !== -1 && journeyType === 'Round Trip' && returnDate < pickupDate) {
       showError('Return date must be on or after the pickup date.');
+      return;
+    }
+    if (['outstation', 'airport'].indexOf(tripType) !== -1 && journeyType === 'Round Trip'
+      && returnDate === pickupDate && returnTime <= pickupTime) {
+      showError('Return time must be after pickup time for a same-day return.');
       return;
     }
 
@@ -179,12 +195,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
       var params = new URLSearchParams({
         trip: tripType,
-        journey: tripType === 'outstation' ? (journeyType === 'Round Trip' ? 'round_trip' : 'one_way') : 'one_way',
+        journey: ['outstation', 'airport'].indexOf(tripType) !== -1 ? (journeyType === 'Round Trip' ? 'round_trip' : 'one_way') : 'one_way',
         pickup: pickupInput,
         drop: dropInput,
         date: pickupDate,
         time: pickupTime,
-        return_date: tripType === 'outstation' && journeyType === 'Round Trip' ? returnDate : ''
+        return_date: ['outstation', 'airport'].indexOf(tripType) !== -1 && journeyType === 'Round Trip' ? returnDate : '',
+        return_time: ['outstation', 'airport'].indexOf(tripType) !== -1 && journeyType === 'Round Trip' ? returnTime : ''
       });
 
       try {

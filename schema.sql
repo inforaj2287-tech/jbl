@@ -120,7 +120,7 @@ CREATE TABLE car_rates (
     toll_charge DECIMAL(10,2) NOT NULL DEFAULT 0,
     permit_charge DECIMAL(10,2) NOT NULL DEFAULT 0,
     discount_amount DECIMAL(10,2) NOT NULL DEFAULT 0, -- powers the "Save Upto ₹x" coupon pill
-    tax_percent DECIMAL(5,2) NOT NULL DEFAULT 5.00,
+    tax_percent DECIMAL(5,2) NOT NULL DEFAULT 0.00,
     status TINYINT(1) DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -273,20 +273,20 @@ INSERT INTO cars (name, brand, model, category, seats, luggage_capacity, image, 
 -- car + ac_type makes that column show "Not Available".
 INSERT INTO car_rates (car_id, ac_type, service_type, fuel_type, transmission, rate_per_km, minimum_km, driver_allowance, tax_percent, discount_amount) VALUES
 -- Maruti Alto
-(1,'NON_AC','OUTSTATION','Petrol','Manual', 9.50, 130, 250, 5.00, 0),
-(1,'AC','OUTSTATION','Petrol','Manual',10.50, 130, 250, 5.00, 0),
-(1,'NON_AC','LOCAL','Petrol','Manual', 9.00, 0, 100, 5.00, 0),
-(1,'AC','LOCAL','Petrol','Manual', 10.00, 0, 100, 5.00, 0),
+(1,'NON_AC','OUTSTATION','Petrol','Manual', 9.50, 130, 250, 0.00, 0),
+(1,'AC','OUTSTATION','Petrol','Manual',10.50, 130, 250, 0.00, 0),
+(1,'NON_AC','LOCAL','Petrol','Manual', 9.00, 0, 100, 0.00, 0),
+(1,'AC','LOCAL','Petrol','Manual', 10.00, 0, 100, 0.00, 0),
 -- Swift Dzire
-(2,'NON_AC','OUTSTATION','Diesel','Manual',10.50, 130, 300, 5.00, 0),
-(2,'AC','OUTSTATION','Diesel','Manual',11.50, 130, 300, 5.00, 0),
-(2,'AC','LOCAL','Diesel','Manual',12.00, 0, 150, 5.00, 0),
+(2,'NON_AC','OUTSTATION','Diesel','Manual',10.50, 130, 300, 0.00, 0),
+(2,'AC','OUTSTATION','Diesel','Manual',11.50, 130, 300, 0.00, 0),
+(2,'AC','LOCAL','Diesel','Manual',12.00, 0, 150, 0.00, 0),
 -- Honda Amaze (AC only, on purpose — shows "Not Available" for Non-AC)
-(3,'AC','OUTSTATION','Petrol','Automatic',12.00, 130, 300, 5.00, 0),
+(3,'AC','OUTSTATION','Petrol','Automatic',12.00, 130, 300, 0.00, 0),
 -- Toyota Innova (AC only)
-(4,'AC','OUTSTATION','Diesel','Manual',16.00, 130, 500, 5.00, 200),
-(4,'AC','LOCAL','Diesel','Manual',17.00, 0, 250, 5.00, 0),
+(4,'AC','OUTSTATION','Diesel','Manual',16.00, 130, 500, 0.00, 200),
+(4,'AC','LOCAL','Diesel','Manual',17.00, 0, 250, 0.00, 0),
 -- Toyota Innova Crysta (AC only, premium)
-(5,'AC','OUTSTATION','Diesel','Automatic',19.00, 130, 600, 5.00, 300);
+(5,'AC','OUTSTATION','Diesel','Automatic',19.00, 130, 600, 0.00, 300);
 
 -- End of schema

@@ -27,13 +27,16 @@ document.addEventListener('DOMContentLoaded', function () {
   var tabs = Array.prototype.slice.call(document.querySelectorAll('.booking-tabs [data-tab]'));
   var bookingType = document.getElementById('tripType');
   var returnDateField = document.getElementById('returnDateField');
-  var journeyType = document.getElementById('journeyType');
+  var returnTimeField = document.getElementById('returnTimeField');
+  var journeyRadios = Array.prototype.slice.call(document.querySelectorAll('input[name="journey_type"]'));
   var returnDateInput = document.getElementById('returnDate');
+  var returnTimeInput = document.getElementById('returnTime');
   var pickupDateInput = document.getElementById('date');
+  var bookingContactDetails = document.getElementById('bookingContactDetails');
 
   function setBookingType(type) {
     if (!tabs.length || !bookingType) return;
-    var validType = ['local', 'outstation', 'package'].indexOf(type) !== -1 ? type : 'local';
+    var validType = ['local', 'outstation', 'airport', 'package'].indexOf(type) !== -1 ? type : 'outstation';
     bookingType.value = validType;
     tabs.forEach(function (tab) {
       var selected = tab.dataset.tab === validType;
@@ -61,11 +64,17 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function updateReturnDate() {
-    if (!returnDateField || !journeyType || !bookingType) return;
-    var visible = bookingType.value === 'outstation' && journeyType.value === 'Round Trip';
+    if (!returnDateField || !returnTimeField || !bookingType) return;
+    var visible = ['outstation', 'airport'].indexOf(bookingType.value) !== -1 && getJourneyType() === 'Round Trip';
     returnDateField.hidden = !visible;
-    var input = returnDateField.querySelector('input');
-    input.required = visible;
+    returnTimeField.hidden = !visible;
+    if (returnDateInput) returnDateInput.required = visible;
+    if (returnTimeInput) returnTimeInput.required = visible;
+  }
+
+  function getJourneyType() {
+    var selected = document.querySelector('input[name="journey_type"]:checked');
+    return selected ? selected.value : 'One Way';
   }
 
   tabs.forEach(function (tab) {
@@ -73,7 +82,9 @@ document.addEventListener('DOMContentLoaded', function () {
       setBookingType(tab.dataset.tab);
     });
   });
-  if (journeyType) journeyType.addEventListener('change', updateReturnDate);
+  journeyRadios.forEach(function (radio) {
+    radio.addEventListener('change', updateReturnDate);
+  });
   if (returnDateInput) {
     returnDateInput.addEventListener('input', function () {
       returnDateInput.setCustomValidity('');
@@ -139,17 +150,20 @@ document.addEventListener('DOMContentLoaded', function () {
       bookingMsg.className = 'form-msg';
       bookingMsg.textContent = '';
 
+      if (bookingContactDetails) bookingContactDetails.open = true;
       if (!bookingForm.reportValidity()) return;
 
       var data = new FormData(bookingForm);
       var service = data.get('service');
       var isAirport = service === 'local' && /airport/i.test(String(data.get('pickup')) + ' ' + String(data.get('drop')));
-      if (service === 'outstation' && data.get('journey_type') === 'Round Trip' && data.get('return_date') < data.get('date')) {
+      var journeyType = getJourneyType();
+      var hasReturnTrip = ['outstation', 'airport'].indexOf(service) !== -1 && journeyType === 'Round Trip';
+      if (hasReturnTrip && data.get('return_date') < data.get('date')) {
         returnDateInput.setCustomValidity('Return date must be on or after the pickup date.');
         returnDateInput.reportValidity();
         return;
       }
-      var parts = ['Hello JB Travels, I would like to enquire about a taxi booking.', ''];
+      var parts = ['Hello JB Travels, I would like to enquire about a car booking.', ''];
       if (service === 'package') {
         parts.push(
           'Service: Tour Package',
@@ -161,15 +175,18 @@ document.addEventListener('DOMContentLoaded', function () {
         );
       } else {
         parts.push(
-          'Service: ' + (service === 'outstation' ? 'Outstation Taxi' : (isAirport ? 'Airport Taxi' : 'Local Taxi')),
+          'Service: ' + (service === 'outstation' ? 'Outstation Car' : ((service === 'airport' || isAirport) ? 'Airport Car' : 'Local Car')),
           'Pickup: ' + data.get('pickup'),
           'Drop: ' + data.get('drop'),
           'Travel Date: ' + data.get('date'),
           'Pickup Time: ' + data.get('time')
         );
-        if (service === 'outstation') {
-          parts.push('Journey Type: ' + data.get('journey_type'));
-          if (data.get('journey_type') === 'Round Trip') parts.push('Return Date: ' + data.get('return_date'));
+        if (['outstation', 'airport'].indexOf(service) !== -1) {
+          parts.push('Journey Type: ' + journeyType);
+          if (hasReturnTrip) {
+            parts.push('Return Date: ' + data.get('return_date'));
+            parts.push('Return Time: ' + data.get('return_time'));
+          }
         }
       }
       if (data.get('preferred_vehicle')) parts.push('Preferred Vehicle: ' + data.get('preferred_vehicle'));
@@ -299,32 +316,36 @@ document.addEventListener('DOMContentLoaded', function () {
   if (contactForm && contactMsg) {
     contactForm.addEventListener('submit', function (event) {
       event.preventDefault();
-      submitForm(contactForm, contactForm.dataset.endpoint || 'api/contact.php', contactMsg);
+      submitForm(contactForm, contactMsg);
     });
   }
 
   var currentYear = document.getElementById('currentYear');
   if (currentYear) currentYear.textContent = String(new Date().getFullYear());
 
-  function submitForm(form, endpoint, messageElement) {
+  function submitForm(form, messageElement) {
     if (!form.reportValidity()) return;
     var data = new FormData(form);
+    var enquiry = [
+      'Hello JB Travels, I would like to send an enquiry.',
+      '',
+      'Name: ' + data.get('name'),
+      'Phone: ' + data.get('phone'),
+      'Email: ' + data.get('email'),
+      'Message: ' + data.get('message')
+    ].join('\n');
+    var whatsappUrl = 'https://wa.me/919535608945?text=' + encodeURIComponent(enquiry);
+
     messageElement.className = 'form-msg';
     messageElement.textContent = '';
-    fetch(endpoint, { method: 'POST', body: data })
-      .then(function (response) {
-        if (!response.ok) throw new Error('The server could not process your message.');
-        return response.json();
-      })
-      .then(function (result) {
-        if (!result.success) throw new Error(result.message || 'Your message could not be sent.');
-        messageElement.textContent = result.message || 'Your message has been received.';
-        messageElement.className = 'form-msg ok';
-        form.reset();
-      })
-      .catch(function (error) {
-        messageElement.textContent = error.message || 'Could not reach the server. Please try again or call +91 97403 09999.';
-        messageElement.className = 'form-msg err';
-      });
+    messageElement.className = 'form-msg ok';
+    messageElement.appendChild(document.createTextNode('WhatsApp is ready with your enquiry. Review it and press Send. '));
+    var sendLink = document.createElement('a');
+    sendLink.href = whatsappUrl;
+    sendLink.target = '_blank';
+    sendLink.rel = 'noopener noreferrer';
+    sendLink.textContent = 'Open WhatsApp';
+    messageElement.appendChild(sendLink);
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   }
 });

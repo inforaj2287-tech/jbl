@@ -238,11 +238,12 @@ document.addEventListener('DOMContentLoaded', function () {
     card.className = 'fleet-card';
     var image = document.createElement('img');
     var category = String(car.category || '').toUpperCase();
-    image.src = car.image || fleetImage(category);
+    var fallbackImage = fleetImage(category, car.name);
+    image.src = fallbackImage;
     image.alt = car.name ? car.name + ' taxi' : 'JB Travels vehicle';
     image.loading = 'lazy';
     image.addEventListener('error', function () {
-      image.src = fleetImage(category);
+      image.src = fallbackImage;
       image.onerror = null;
     });
 
@@ -283,14 +284,17 @@ document.addEventListener('DOMContentLoaded', function () {
     return card;
   }
 
-  function fleetImage(category) {
+  function fleetImage(category, carName) {
     var images = {
-      HATCHBACK: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=800&q=75',
-      SEDAN: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=75',
-      SUV: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=800&q=75',
-      MUV: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=800&q=75',
-      PREMIUM: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=75'
+      HATCHBACK: 'assets/images/fleet-hatchback.jpg',
+      SEDAN: 'assets/images/fleet-sedan.jpg',
+      SUV: 'assets/images/fleet-suv.jpg',
+      MUV: 'assets/images/fleet-muv.jpg',
+      PREMIUM: 'assets/images/fleet-premium.jpg'
     };
+    var model = String(carName || '').toLowerCase();
+    if (/innova|carens|ertiga/.test(model)) return images.MUV;
+    if (/dzire/.test(model)) return images.SEDAN;
     return images[category] || images.SEDAN;
   }
 

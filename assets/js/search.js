@@ -81,11 +81,16 @@ document.addEventListener('DOMContentLoaded', function() {
   function updatePickupOptions(tripType) {
     activeTripType = tripType;
     var pickupValue = pickupSelect.value || savedPickup || '';
-    var pickupCities = cityOptions.slice();
-    if (!pickupCities.some(function (city) { return city.city === 'Belagavi Airport'; })) {
+    var pickupCities = cityOptions
+      .filter(function (city) { return city.city.toLowerCase() === 'belagavi'; })
+      .map(function (city) { return { city: city.city, label: 'Belagavi' }; });
+    if (!pickupCities.length) pickupCities.push({ city: 'Belagavi', label: 'Belagavi' });
+    if (tripType === 'airport') {
       pickupCities.push({ city: 'Belagavi Airport', label: 'Belagavi Airport' });
     }
-    if (tripType === 'airport' && !pickupValue) pickupValue = 'Belagavi Airport';
+    if (!pickupCities.some(function (city) { return city.city.toLowerCase() === pickupValue.toLowerCase(); })) {
+      pickupValue = 'Belagavi';
+    }
     populateCitySelect(pickupSelect, pickupCities, pickupValue);
   }
 
@@ -98,6 +103,11 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('#meterTabs button').forEach(function (button) {
     button.addEventListener('click', function () {
       updatePickupOptions(button.dataset.tab);
+    });
+  });
+  document.querySelectorAll('.booking-tabs [data-tab], [data-book-tab]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      updatePickupOptions(button.dataset.tab || button.dataset.bookTab);
     });
   });
 

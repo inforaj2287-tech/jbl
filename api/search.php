@@ -115,6 +115,11 @@ try {
         echo json_encode(['success' => false, 'message' => 'Pickup and drop must be different active locations.']);
         exit;
     }
+    if (strtolower(trim((string)$fromLoc['city'])) !== 'belagavi') {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Pickup must be in Belagavi.']);
+        exit;
+    }
 
     // ---- Distance, driven entirely by km (requirement: price by km) ----
     $distanceInfo = ($serviceType === 'LOCAL' || ($serviceType === 'AIRPORT' && $fromId === $toId))
